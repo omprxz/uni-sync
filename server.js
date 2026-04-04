@@ -49,6 +49,7 @@ app.use((req, res, next) => { req.io = io; next(); });
 app.use('/', indexRouter);
 app.use('/rooms', roomsRouter);
 app.use('/api', apiRouter);
+app.use('/api/upload', require('./routes/upload'));
 
 // Health check
 app.get('/health', (req, res) => {

@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('droproom-theme');
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %></title>
@@ -93,9 +102,28 @@
     .pill-active { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white; }
     .pill-inactive { background: transparent; color: #64748b; }
     .pill-inactive:hover { color: #94a3b8; background: rgba(255,255,255,0.05); }
-  </style>
+  
+    /* Light Mode Overrides */
+    html.light body { background: #f8fafc; color: #0f172a; }
+    html.light .bg-\[\#0a0c12\] { background-color: #f8fafc !important; }
+    html.light .bg-\[\#0a0c12\]\/90 { background-color: rgba(248, 250, 252, 0.9) !important; }
+    html.light .bg-\[\#0a0c12\]\/50 { background-color: rgba(248, 250, 252, 0.5) !important; }
+    html.light .bg-surface { background-color: #ffffff !important; }
+    html.light .border-border, html.light .border-border\/50, html.light .border-border\/30 { border-color: #e2e8f0 !important; }
+    html.light .text-white { color: #0f172a !important; }
+    html.light .text-slate-400 { color: #64748b !important; }
+    html.light .text-slate-300 { color: #475569 !important; }
+    html.light .text-slate-500 { color: #64748b !important; }
+    html.light .text-slate-600 { color: #94a3b8 !important; }
+    html.light .hover\:text-white:hover { color: #000000 !important; }
+    html.light input, html.light textarea, html.light select { background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    html.light .item-card { border-color: #cbd5e1 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; }
+    html.light .pill-inactive { color: #64748b !important; }
+    html.light .pill-inactive:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+    html.light .filter-pill { border: none !important; }
+</style>
 </head>
-<body class="dark min-h-screen bg-[#0a0c12]">
+<body class=" min-h-screen bg-[#0a0c12]">
 
   <%- body %>
 
@@ -142,14 +170,27 @@
     function toggleTheme() {
       const html = document.documentElement;
       html.classList.toggle('dark');
+      html.classList.toggle('light');
       localStorage.setItem('droproom-theme', html.classList.contains('dark') ? 'dark' : 'light');
       document.getElementById('theme-icon')?.classList.toggle('hidden');
       document.getElementById('theme-icon-2')?.classList.toggle('hidden');
+      if (document.body) {
+        document.body.classList.toggle('dark');
+        document.body.classList.toggle('light');
+      }
     }
-    // Apply saved theme
-    if (localStorage.getItem('droproom-theme') === 'light') {
-      document.documentElement.classList.remove('dark');
-    }
+    // Apply saved theme on load (head)
+    (function() {
+      const saved = localStorage.getItem('droproom-theme');
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    })();
+
   </script>
 </body>
 </html>

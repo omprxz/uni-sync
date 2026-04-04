@@ -6,7 +6,7 @@ const S = {
   filter: 'all',
   search: '',
   sort: 'newest',
-  viewMode: 'comfortable',
+  viewMode: localStorage.getItem('droproom-view-'+window.ROOM_CODE) || 'compact',
   ownerToken: null,
   isOwner: false,
   isReadOnly: false,
@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(`droproom-owner-${CODE}`, urlToken);
     S.ownerToken = urlToken;
     history.replaceState({}, '', `/rooms/${CODE}`);
+  } else if (item.type === 'image') {
+    contentHTML = `<img src="${escHtml(item.content)}" class="max-h-64 object-contain rounded-xl w-full" />`;
+  } else if (item.type === 'file') {
+    contentHTML = `<a href="${escHtml(item.content)}" target="_blank" class="flex items-center gap-3 p-4 border border-border rounded-xl hover:border-orange-500/50 transition-colors"><svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><div class="flex-1 min-w-0"><p class="text-white text-sm font-medium truncate">${escHtml(item.label || 'Download File')}</p></div></a>`;
   } else {
     const saved = localStorage.getItem(`droproom-owner-${CODE}`);
     if (saved === ROOM.ownerToken) S.ownerToken = saved;
@@ -171,6 +175,8 @@ function itemCardHTML(item) {
     link: { color: 'blue', label: '↗ Link', border: 'type-link' },
     code: { color: 'emerald', label: '</> Code', border: 'type-code' },
     markdown: { color: 'amber', label: '# Markdown', border: 'type-markdown' },
+    image: { color: 'pink', label: '🖼 Image', border: 'type-image' },
+    file: { color: 'orange', label: '📄 File', border: 'type-file' },
   };
   const tc = typeConfig[item.type] || typeConfig.text;
 
@@ -198,9 +204,7 @@ function itemCardHTML(item) {
     contentHTML = `<p class="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">${escHtml(preview)}${truncated ? '...' : ''}</p>`;
   }
 
-  const pinIcon = item.pinned
-    ? `<span class="text-amber-400 text-xs" title="Pinned">📌</span>`
-    : '';
+  const pinIcon = item.pinned ? `<span class="text-amber-400 text-xs" title="Pinned"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/></svg></span>` : '';
   const starBtn = `<button onclick="toggleStar('${item._id}')" title="${isStarred ? 'Unstar' : 'Star'}"
     class="icon-btn ${isStarred ? 'text-amber-400' : 'text-slate-600 hover:text-amber-400'}">★</button>`;
 
@@ -235,6 +239,7 @@ function itemCardHTML(item) {
       ${!S.isReadOnly ? `<button onclick="openEdit('${item._id}')" title="Edit" class="icon-btn text-slate-500 hover:text-white">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
       </button>
+      <button onclick="viewFull('${item._id}')" title="View Full" class="icon-btn text-slate-500 hover:text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"/></svg></button>
       <button onclick="deleteItem('${item._id}')" title="Delete" class="icon-btn text-slate-500 hover:text-red-400">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
       </button>` : ''}
@@ -243,7 +248,7 @@ function itemCardHTML(item) {
       <button onclick="shareItem('${item._id}')" title="Share" class="icon-btn text-slate-500 hover:text-violet-400">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
       </button>
-      <button onclick="showQR(location.origin+'/rooms/${CODE}/item/${escHtml(item._id)}')" title="QR Code" class="icon-btn text-slate-500 hover:text-violet-400 text-xs">📱</button>
+      <button onclick="showQR(location.origin+'/rooms/${CODE}/item/${escHtml(item._id)}')" title="QR Code" class="icon-btn text-slate-500 hover:text-violet-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg></button>
     </div>
   </div>`;
 }
@@ -379,6 +384,7 @@ function setSort(s) { S.sort = s; renderItems(); }
 
 function setViewMode(mode) {
   S.viewMode = mode;
+  localStorage.setItem('droproom-view-'+CODE, mode);
   document.getElementById('view-comfortable').className = document.getElementById('view-comfortable').className.replace(/pill-active|pill-inactive/, mode === 'comfortable' ? 'pill-active' : 'pill-inactive');
   document.getElementById('view-compact').className = document.getElementById('view-compact').className.replace(/pill-active|pill-inactive/, mode === 'compact' ? 'pill-active' : 'pill-inactive');
   renderItems();
@@ -657,3 +663,68 @@ const st = document.createElement('style');
 st.textContent = `.icon-btn { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; transition:all 0.15s; cursor:pointer; background:transparent; border:none; }
 .icon-btn:hover { background: rgba(255,255,255,0.06); }`;
 document.head.appendChild(st);
+
+
+// View in Bottom Sheet
+function viewFull(id) {
+  const item = S.items.find(i => i._id === id);
+  if (!item) return;
+  const container = document.getElementById('bottom-sheet-content');
+  let content = '';
+  if (item.type === 'image') content = `<img src="${escHtml(item.content)}" class="w-full h-auto rounded-lg" />`;
+  else if (item.type === 'file') content = `<a href="${escHtml(item.content)}" target="_blank" class="text-blue-400 underline">Download File</a>`;
+  else if (item.type === 'link') content = `<a href="${escHtml(item.content)}" target="_blank" class="text-blue-400 underline break-all">${escHtml(item.content)}</a>`;
+  else if (item.type === 'code') content = `<pre class="p-4 bg-slate-900 rounded-lg overflow-auto text-sm"><code>${escHtml(item.content)}</code></pre>`;
+  else if (item.type === 'markdown') content = `<div class="markdown-body p-4 bg-slate-900 rounded-lg overflow-auto">${DOMPurify.sanitize(marked.parse(item.content))}</div>`;
+  else content = `<p class="whitespace-pre-wrap text-sm text-slate-300 p-4 bg-slate-900 rounded-lg break-words">${escHtml(item.content)}</p>`;
+  
+  container.innerHTML = content;
+  document.getElementById('bottom-sheet').classList.remove('translate-y-full');
+}
+function closeBottomSheet() {
+  document.getElementById('bottom-sheet').classList.add('translate-y-full');
+}
+
+// Upload integrations
+async function uploadFile(file) {
+  if (S.isReadOnly) { showToast('Room is read-only', 'warning'); return; }
+  const btn = document.getElementById('submit-btn');
+  const ogText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Uploading...';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('code', CODE);
+
+  const isImage = file.type.startsWith('image/');
+  const endpoint = isImage ? '/api/upload/image' : '/api/upload/file';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Upload failed');
+    showToast('Uploaded successfully!', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = ogText;
+  }
+}
+
+function handleFileInput(e) {
+  if (e.target.files.length > 0) {
+    uploadFile(e.target.files[0]);
+    e.target.value = '';
+  }
+}
+
+function logout() {
+  localStorage.removeItem(`droproom-owner-${CODE}`);
+  location.href = '/';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setViewMode(S.viewMode);
+});

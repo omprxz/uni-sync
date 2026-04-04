@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
   roomCode: { type: String, required: true, uppercase: true, index: true },
-  type: { type: String, enum: ['text', 'link', 'code', 'markdown'], default: 'text' },
-  content: { type: String, required: true, maxlength: 10000 },
+  type: { type: String, enum: ['text', 'link', 'code', 'markdown', 'image', 'file'], default: 'text' },
+  content: { type: String, required: true, maxlength: 1000000 },
   label: { type: String, maxlength: 200, default: '' },
   language: { type: String, default: null },
   ogData: {

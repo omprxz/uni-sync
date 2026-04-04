@@ -163,6 +163,15 @@ router.delete('/items/:id', async (req, res) => {
     if (!item || item.deleted) return res.status(404).json({ error: 'Not found' });
     item.deleted = true; item.deletedAt = new Date();
     await item.save();
+
+    // Trigger Filebin API deletion if type is 'file'
+    if (item.type === 'file' && item.ogData && item.ogData.url) {
+      try {
+        await axios.delete(`https://filebin.net/${item.ogData.url}`);
+      } catch (err) {
+        console.error('Filebin delete failed:', err.message);
+      }
+    }
     if (req.io) req.io.to(item.roomCode).emit('item-deleted', { id: item._id });
     await Activity.create({ roomCode: item.roomCode, action: 'deleted', itemType: item.type, label: item.label });
     res.json({ success: true });
