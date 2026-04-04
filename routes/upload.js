@@ -28,7 +28,6 @@ router.post('/image', upload.single('file'), itemSubmitLimiter, async (req, res)
 
     const room = await Room.findOne({ code: code.toUpperCase() });
     if (!room) return res.status(404).json({ error: 'Room not found' });
-    if (room.readOnly) return res.status(403).json({ error: 'Room is read-only' });
 
     const form = new FormData();
     form.append('image', req.file.buffer, req.file.originalname);
@@ -75,7 +74,6 @@ router.post('/file', upload.single('file'), itemSubmitLimiter, async (req, res) 
 
     const room = await Room.findOne({ code: code.toUpperCase() });
     if (!room) return res.status(404).json({ error: 'Room not found' });
-    if (room.readOnly) return res.status(403).json({ error: 'Room is read-only' });
 
     // Filebin logic
     const binId = generateRandomStr(16);

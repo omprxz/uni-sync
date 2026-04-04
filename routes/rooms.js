@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
 const Room = require('../models/Room');
 const Item = require('../models/Item');
 const { roomCreationLimiter } = require('../middleware/rateLimiter');
@@ -42,11 +41,10 @@ router.post('/', roomCreationLimiter, async (req, res) => {
     const ttlSeconds = parseTTL(ttl);
     const expiresAt = ttlSeconds ? new Date(Date.now() + ttlSeconds * 1000) : null;
     const passwordHash = password && password.trim() ? await bcrypt.hash(password, 10) : null;
-    const ownerToken = uuidv4();
 
-    await new Room({ code, passwordHash, ownerToken, ttl: ttlSeconds, expiresAt, readOnly: false }).save();
+    await new Room({ code, passwordHash, ttl: ttlSeconds, expiresAt }).save();
 
-    res.redirect(`/rooms/${code}?ownerToken=${ownerToken}`);
+    res.redirect(`/rooms/${code}`);
   } catch (err) {
     console.error(err);
     res.redirect('/?error=create_failed');
@@ -84,11 +82,9 @@ router.get('/:code', async (req, res) => {
       initialItems: JSON.stringify(items),
       roomData: JSON.stringify({
         code: room.code,
-        readOnly: room.readOnly,
         expiresAt: room.expiresAt,
         ttl: room.ttl,
-        hasPassword: !!room.passwordHash,
-        ownerToken: room.ownerToken
+        hasPassword: !!room.passwordHash
       })
     });
   } catch (err) {

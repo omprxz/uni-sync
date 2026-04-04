@@ -80,7 +80,7 @@ async function fetchOG(url) {
 // GET /api/rooms/:code
 router.get('/rooms/:code', async (req, res) => {
   try {
-    const room = await Room.findOne({ code: req.params.code.toUpperCase() }).select('-passwordHash -ownerToken');
+    const room = await Room.findOne({ code: req.params.code.toUpperCase() }).select('-passwordHash');
     if (!room) return res.status(404).json({ error: 'Room not found' });
     res.json(room);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -103,7 +103,6 @@ router.post('/rooms/:code/items', itemSubmitLimiter, async (req, res) => {
     const code = req.params.code.toUpperCase();
     const room = await Room.findOne({ code });
     if (!room) return res.status(404).json({ error: 'Room not found' });
-    if (room.readOnly) return res.status(403).json({ error: 'Room is read-only' });
 
     let { content, label, type } = req.body;
     content = sanitize((content || '').trim());
@@ -137,8 +136,7 @@ router.put('/items/:id', itemSubmitLimiter, async (req, res) => {
     const item = await Item.findById(req.params.id);
     if (!item || item.deleted) return res.status(404).json({ error: 'Not found' });
 
-    const room = await Room.findOne({ code: item.roomCode });
-    if (room?.readOnly) return res.status(403).json({ error: 'Room is read-only' });
+
 
     if (req.body.content !== undefined) {
       item.content = sanitize(req.body.content.trim());
@@ -192,31 +190,17 @@ router.post('/items/:id/restore', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// PUT /api/items/:id/pin — toggle pin (owner only)
+// PUT /api/items/:id/pin — toggle pin
 router.put('/items/:id/pin', async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ error: 'Not found' });
     const room = await Room.findOne({ code: item.roomCode });
-    if (!room || room.ownerToken !== req.body.ownerToken)
-      return res.status(403).json({ error: 'Owner only' });
+    if (!room) return res.status(404).json({ error: 'Room not found' });
     item.pinned = !item.pinned;
     await item.save();
     if (req.io) req.io.to(item.roomCode).emit('item-pinned', { id: item._id, pinned: item.pinned });
     res.json({ pinned: item.pinned });
-  } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-// PUT /api/rooms/:code/readonly — toggle read-only (owner only)
-router.put('/rooms/:code/readonly', async (req, res) => {
-  try {
-    const room = await Room.findOne({ code: req.params.code.toUpperCase() });
-    if (!room) return res.status(404).json({ error: 'Not found' });
-    if (room.ownerToken !== req.body.ownerToken) return res.status(403).json({ error: 'Owner only' });
-    room.readOnly = !room.readOnly;
-    await room.save();
-    if (req.io) req.io.to(room.code).emit('room-readonly', { readOnly: room.readOnly });
-    res.json({ readOnly: room.readOnly });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

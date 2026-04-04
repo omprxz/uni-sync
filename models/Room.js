@@ -6,10 +6,8 @@ const roomSchema = new mongoose.Schema({
     uppercase: true, trim: true, match: /^[A-Z0-9]{6}$/
   },
   passwordHash: { type: String, default: null },
-  ownerToken: { type: String, required: true },
   ttl: { type: Number, default: null }, // seconds, null = never
   expiresAt: { type: Date, default: null },
-  readOnly: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
