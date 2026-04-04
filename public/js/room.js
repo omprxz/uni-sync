@@ -211,7 +211,7 @@ function itemCardHTML(item) {
     class="icon-btn ${isStarred ? "text-amber-400" : "text-slate-600 hover:text-amber-400"}">★</button>`;
 
   const pinBtn = `<button onclick="togglePin('${item._id}')" title="${item.pinned ? "Unpin" : "Pin"}"
-    class="icon-btn ${item.pinned ? "text-amber-400" : "text-slate-600 hover:text-amber-400"}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+    class="icon-btn ${item.pinned ? "text-amber-400" : "text-slate-600 hover:text-amber-400"}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="16" height="16" fill="none">
   <path d="M14 3L21 10L17.5 10.5L13.5 14.5L13 18L6 11L9.5 10.5L13.5 6.5L14 3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M3 21L9.5 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
 </svg></button>`;
