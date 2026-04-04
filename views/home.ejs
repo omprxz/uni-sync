@@ -1,0 +1,177 @@
+<div class="min-h-screen bg-[#0a0c12] bg-grid flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-600/5 rounded-full blur-3xl" style="pointer-events:none"></div>
+  <div class="absolute bottom-0 left-1/4 w-80 h-80 bg-indigo-600/5 rounded-full blur-3xl" style="pointer-events:none"></div>
+
+  <div class="relative z-10 w-full max-w-sm">
+    <!-- Logo -->
+    <div class="text-center mb-10">
+      <a href="/" class="inline-flex items-center gap-3 mb-5 group">
+        <div class="w-11 h-11 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <span class="text-2xl font-bold text-white tracking-tight">DropRoom</span>
+      </a>
+      <p class="text-slate-400 text-sm leading-relaxed">Enter a room code to join or create a room.<br/>No login. No uploads. Just a code.</p>
+    </div>
+
+    <% if (error) { %>
+    <div class="mb-4 flex items-center gap-3 bg-red-900/30 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
+      <span>⚠</span><span><%= error %></span>
+    </div>
+    <% } %>
+
+    <!-- Single input card -->
+    <div class="bg-surface border border-border rounded-2xl p-6 shadow-2xl glow-violet">
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Room Code</label>
+      <input id="room-code-input" type="text" maxlength="6" placeholder="X4K9QZ"
+        class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-4 text-white text-2xl font-mono font-bold tracking-widest placeholder-slate-700 focus:border-violet-500 transition-colors text-center uppercase mb-4"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+        onkeydown="if(event.key==='Enter') goToRoom()"
+        autocomplete="off" spellcheck="false" autofocus />
+
+      <button onclick="goToRoom()" id="go-btn"
+        class="w-full py-3 rounded-xl btn-primary text-sm font-semibold mb-4 flex items-center justify-center gap-2">
+        <span id="go-btn-text">Enter Room →</span>
+        <span id="go-spinner" style="display:none">
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+        </span>
+      </button>
+
+      <div class="text-center">
+        <button onclick="createFresh()" class="text-xs text-slate-600 hover:text-violet-400 transition-colors underline-offset-2 hover:underline">
+          or create a new room with a random code →
+        </button>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="flex justify-center gap-5 mt-8 text-xs text-slate-600">
+      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Real-time sync</span>
+      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Links & previews</span>
+      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Code highlighting</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Create Room Dialog ─────────────────────────────────────────────────── -->
+<div id="create-dialog" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
+  <div class="bg-surface border border-border rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" style="animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1)">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-9 h-9 bg-violet-500/15 border border-violet-500/20 rounded-xl flex items-center justify-center text-lg">✦</div>
+      <div>
+        <h2 class="text-white font-bold text-base">Create Room</h2>
+        <p class="text-slate-500 text-xs">Room <span id="dialog-code" class="font-mono text-violet-400 font-bold"></span> doesn't exist yet</p>
+      </div>
+    </div>
+
+    <div class="h-px bg-border my-4"></div>
+
+    <form id="create-form" action="/rooms" method="POST">
+      <input type="hidden" name="code" id="form-code" />
+
+      <!-- TTL -->
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Expires after</label>
+      <div class="grid grid-cols-5 gap-1.5 mb-4">
+        <% [['1h','1h'],['6h','6h'],['24h','24h'],['7d','7d'],['never','∞']].forEach(([v,l], i) => { %>
+        <label class="cursor-pointer">
+          <input type="radio" name="ttl" value="<%= v %>" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" <%= i===2?'checked':'' %> onchange="updateTTLPills(this.value)" />
+          <span class="ttl-pill block text-center py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer <%= i===2 ? 'pill-active border-violet-500' : 'pill-inactive border-border' %>"><%= l %></span>
+        </label>
+        <% }) %>
+      </div>
+
+      <!-- Password -->
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password <span class="text-slate-600 normal-case font-normal">(optional)</span></label>
+      <input name="password" type="password" placeholder="Leave blank for public room"
+        class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2.5 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-5" />
+
+      <div class="flex gap-3">
+        <button type="button" onclick="closeDialog()" class="flex-1 py-2.5 rounded-xl border border-border text-slate-400 hover:text-white text-sm transition-all hover:border-slate-600">
+          Cancel
+        </button>
+        <button type="submit" class="flex-1 py-2.5 rounded-xl btn-primary text-sm font-semibold">
+          Create Room →
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function goToRoom() {
+    const code = document.getElementById('room-code-input').value.trim();
+    if (code.length !== 6) { showToast('Enter a 6-character room code', 'warning'); return; }
+
+    // Show spinner
+    document.getElementById('go-btn-text').textContent = 'Checking…';
+    document.getElementById('go-spinner').style.display = '';
+    document.getElementById('go-btn').disabled = true;
+
+    fetch('/api/rooms/' + code)
+      .then(r => {
+        if (r.ok) {
+          // Room exists — go straight in
+          window.location.href = '/rooms/' + code;
+        } else if (r.status === 404) {
+          // Room doesn't exist — show create dialog
+          resetBtn();
+          showCreateDialog(code);
+        } else {
+          resetBtn();
+          showToast('Something went wrong, try again', 'error');
+        }
+      })
+      .catch(() => { resetBtn(); showToast('Cannot reach server', 'error'); });
+  }
+
+  function resetBtn() {
+    document.getElementById('go-btn-text').textContent = 'Enter Room →';
+    document.getElementById('go-spinner').style.display = 'none';
+    document.getElementById('go-btn').disabled = false;
+  }
+
+  function createFresh() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('room-code-input').value = code;
+    showCreateDialog(code);
+  }
+
+  function showCreateDialog(code) {
+    document.getElementById('dialog-code').textContent = code;
+    document.getElementById('form-code').value = code;
+    const d = document.getElementById('create-dialog');
+    d.style.display = 'flex';
+    // reset TTL pills to 24h default
+    document.querySelectorAll('input[name="ttl"]').forEach(r => { r.checked = r.value === '24h'; });
+    updateTTLPills('24h');
+  }
+
+  function closeDialog() {
+    document.getElementById('create-dialog').style.display = 'none';
+  }
+
+  function updateTTLPills(val) {
+    document.querySelectorAll('.ttl-pill').forEach(pill => {
+      const inp = pill.previousElementSibling;
+      const active = inp && inp.value === val;
+      // reset classes
+      pill.classList.remove('pill-active', 'pill-inactive', 'border-violet-500', 'border-border');
+      if (active) {
+        pill.classList.add('pill-active', 'border-violet-500');
+      } else {
+        pill.classList.add('pill-inactive', 'border-border');
+      }
+    });
+  }
+
+  // Close dialog on backdrop click
+  document.getElementById('create-dialog').addEventListener('click', function(e) {
+    if (e.target === this) closeDialog();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDialog(); });
+</script>

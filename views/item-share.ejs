@@ -1,0 +1,77 @@
+<div class="min-h-screen bg-[#0a0c12] bg-grid flex flex-col items-center justify-center px-4 relative overflow-hidden">
+  <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-violet-600/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="relative z-10 w-full max-w-lg">
+    <div class="flex items-center justify-between mb-6">
+      <a href="/" class="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+        <div class="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <span class="font-bold text-white">DropRoom</span>
+      </a>
+      <a href="/rooms/<%= roomCode %>" class="text-sm text-violet-400 hover:text-violet-300 transition-colors font-mono font-bold">← Back to <%= roomCode %></a>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl glow-violet">
+      <!-- Type badge -->
+      <div class="px-6 pt-6 pb-4 border-b border-border flex items-center gap-3">
+        <% const typeColors = { text: 'bg-violet-500/15 text-violet-400 border-violet-500/20', link: 'bg-blue-500/15 text-blue-400 border-blue-500/20', code: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', markdown: 'bg-amber-500/15 text-amber-400 border-amber-500/20' }; %>
+        <% const typeLabels = { text: '✦ Text', link: '↗ Link', code: '</> Code', markdown: '# Markdown' }; %>
+        <span class="text-xs font-bold px-3 py-1 rounded-full border <%= typeColors[item.type] || typeColors.text %>">
+          <%= typeLabels[item.type] || item.type %>
+        </span>
+        <% if (item.label) { %>
+        <span class="text-white font-semibold text-sm"><%= item.label %></span>
+        <% } %>
+        <span class="ml-auto text-xs text-slate-600">Shared from room <span class="font-mono text-violet-400"><%= roomCode %></span></span>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6">
+        <% if (item.type === 'link' && item.ogData) { %>
+          <div class="border border-border rounded-xl overflow-hidden mb-4">
+            <% if (item.ogData.image) { %>
+            <img src="<%= item.ogData.image %>" alt="" class="w-full h-40 object-cover" onerror="this.style.display='none'" />
+            <% } %>
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <img src="<%= item.ogData.favicon %>" class="w-4 h-4 rounded" onerror="this.style.display='none'" />
+                <span class="text-xs text-slate-500"><%= item.ogData.siteName %></span>
+              </div>
+              <% if (item.ogData.title) { %><p class="text-white font-semibold text-sm mb-1"><%= item.ogData.title %></p><% } %>
+              <% if (item.ogData.description) { %><p class="text-slate-400 text-sm"><%= item.ogData.description %></p><% } %>
+            </div>
+          </div>
+          <a href="<%= item.content %>" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 break-all text-sm underline"><%= item.content %></a>
+        <% } else if (item.type === 'code') { %>
+          <pre class="overflow-x-auto"><code class="<%= item.language ? 'language-'+item.language : '' %>"><%= item.content %></code></pre>
+        <% } else if (item.type === 'markdown') { %>
+          <div id="md-content" class="markdown-body"></div>
+          <script>document.getElementById('md-content').innerHTML = DOMPurify.sanitize(marked.parse(`<%= item.content.replace(/`/g, '\\`') %>`));</script>
+        <% } else { %>
+          <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap"><%= item.content %></p>
+        <% } %>
+      </div>
+
+      <!-- Actions -->
+      <div class="px-6 pb-6 flex gap-3 flex-wrap">
+        <button onclick="copyText('<%= item.content.replace(/'/g, "\\'") %>')" class="flex items-center gap-2 px-4 py-2 bg-[#1f2235] border border-border rounded-xl text-slate-300 hover:text-white text-sm transition-all hover:border-violet-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          Copy
+        </button>
+        <button onclick="showQR(location.href)" class="flex items-center gap-2 px-4 py-2 bg-[#1f2235] border border-border rounded-xl text-slate-300 hover:text-white text-sm transition-all hover:border-violet-500">
+          📱 QR Code
+        </button>
+        <a href="/rooms/<%= roomCode %>" class="flex items-center gap-2 px-4 py-2 bg-[#1f2235] border border-border rounded-xl text-slate-300 hover:text-white text-sm transition-all hover:border-violet-500">
+          Open Room →
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!', 'success'));
+  }
+  document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); });
+</script>

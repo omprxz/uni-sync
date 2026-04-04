@@ -1,0 +1,193 @@
+<!-- Room data injected for client JS -->
+<script>
+  window.ROOM_CODE = '<%- roomCode %>';
+  window.ROOM_DATA = <%- roomData %>;
+  window.INITIAL_ITEMS = <%- initialItems %>;
+</script>
+
+<!-- NAVBAR -->
+<header class="sticky top-0 z-40 border-b border-border bg-[#0a0c12]/90 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto px-4 flex items-center gap-3 h-14">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-2 shrink-0 group">
+      <div class="w-7 h-7 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <span class="text-sm font-bold text-white hidden sm:block">DropRoom</span>
+    </a>
+
+    <div class="w-px h-5 bg-border mx-1 hidden sm:block"></div>
+
+    <!-- Room code chip -->
+    <button id="room-code-chip" onclick="copyRoomCode()" class="flex items-center gap-2 bg-surface border border-border rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-violet-400 hover:border-violet-500/60 transition-all group">
+      <span><%- roomCode %></span>
+      <svg class="w-3.5 h-3.5 text-slate-600 group-hover:text-violet-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    </button>
+
+    <!-- TTL countdown -->
+    <div id="ttl-display" class="hidden items-center gap-1.5 text-xs text-slate-500 bg-surface border border-border rounded-xl px-3 py-1.5">
+      <svg class="w-3.5 h-3.5 text-amber-400 animate-pulse-soft" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="ttl-timer" class="font-mono text-amber-400 font-semibold"></span>
+    </div>
+
+    <div class="flex-1"></div>
+
+    <!-- User count -->
+    <div class="flex items-center gap-1.5 text-xs text-slate-400 bg-surface border border-border rounded-xl px-3 py-1.5">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-soft"></span>
+      <span id="user-count">1</span>
+      <span class="hidden sm:inline text-slate-600">online</span>
+    </div>
+
+    <!-- Item count -->
+    <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 bg-surface border border-border rounded-xl px-3 py-1.5">
+      <span id="item-count">0</span>
+      <span class="text-slate-600">items</span>
+    </div>
+
+    <!-- Read-only badge (owner) -->
+    <button id="readonly-btn" onclick="toggleReadOnly()" class="hidden items-center gap-1.5 text-xs rounded-xl px-3 py-1.5 border transition-all font-medium">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <span id="readonly-label">Lock</span>
+    </button>
+
+    <!-- Theme toggle -->
+    <button onclick="toggleTheme()" class="p-2 rounded-xl bg-surface border border-border text-slate-400 hover:text-white hover:border-violet-500/50 transition-all">
+      <svg id="theme-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      <svg id="theme-icon-2" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/></svg>
+    </button>
+  </div>
+
+  <!-- Activity feed -->
+  <div id="activity-bar" class="border-t border-border/50 bg-[#0a0c12]/50 overflow-hidden transition-all duration-300" style="max-height:0">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-col gap-1" id="activity-list"></div>
+  </div>
+  <button onclick="toggleActivity()" id="activity-toggle-btn" class="w-full flex items-center justify-center gap-2 py-1 text-xs text-slate-600 hover:text-slate-400 transition-colors border-t border-border/30">
+    <span id="activity-toggle-label">▼ Show activity</span>
+  </button>
+</header>
+
+<!-- Read-only banner -->
+<div id="readonly-banner" class="hidden bg-amber-500/10 border-b border-amber-500/20 text-amber-400 text-xs text-center py-2 font-medium">
+  🔒 This room is read-only — new items are disabled
+</div>
+
+<!-- Typing indicator -->
+<div id="typing-indicator" class="hidden max-w-7xl mx-auto px-4 pt-2 text-xs text-slate-500 italic animate-pulse-soft">
+  Someone is typing...
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- INPUT AREA -->
+  <div id="input-area" class="bg-surface border border-border rounded-2xl p-4 mb-6 glow-violet-sm transition-all">
+    <div class="flex items-start gap-3">
+      <div class="flex-1">
+        <!-- Type badge (auto-detected) -->
+        <div class="flex items-center gap-2 mb-2">
+          <span id="detected-type-badge" class="text-xs font-bold px-2.5 py-1 rounded-full border bg-violet-500/15 text-violet-400 border-violet-500/20 transition-all">✦ Text</span>
+          <span class="text-xs text-slate-600">Auto-detected type</span>
+          <span id="char-count" class="ml-auto text-xs text-slate-600">0 / 10,000</span>
+        </div>
+        <textarea id="new-content" rows="3" placeholder="Paste or type anything — links, code, notes, markdown... (or press Ctrl+V anywhere)"
+          class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-3 text-white text-sm placeholder-slate-700 focus:border-violet-500 transition-colors resize-none font-sans"
+          oninput="onContentInput(this.value)" onkeydown="onContentKeydown(event)"></textarea>
+        <div class="flex gap-3 mt-2.5">
+          <input id="new-label" type="text" maxlength="200" placeholder="Label / title (optional)"
+            class="flex-1 bg-[#0a0c12] border border-border rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-700 focus:border-violet-500 transition-colors" />
+          <button onclick="submitItem()" id="submit-btn"
+            class="px-5 py-2.5 rounded-xl btn-primary text-sm font-semibold whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+            + Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER + SEARCH + SORT BAR -->
+  <div class="flex flex-wrap gap-2 items-center mb-6">
+    <!-- Type filter pills -->
+    <div class="flex gap-1 bg-surface border border-border rounded-xl p-1" id="filter-pills">
+      <% [['all','All'], ['text','Text'], ['link','Links'], ['code','Code'], ['markdown','MD']].forEach(([v,l]) => { %>
+      <button onclick="setFilter('<%= v %>')" data-filter="<%= v %>"
+        class="filter-pill px-3 py-1.5 rounded-lg text-xs font-semibold transition-all <%= v==='all' ? 'pill-active' : 'pill-inactive' %>">
+        <%= l %>
+      </button>
+      <% }) %>
+    </div>
+
+    <!-- Search -->
+    <div class="flex-1 min-w-[160px] relative">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input id="search-input" type="text" placeholder="Search items..." oninput="setSearch(this.value)"
+        class="w-full bg-surface border border-border rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-slate-600 focus:border-violet-500 transition-colors" />
+    </div>
+
+    <!-- Sort -->
+    <select onchange="setSort(this.value)" class="bg-surface border border-border rounded-xl px-3 py-2 text-sm text-slate-300 focus:border-violet-500 transition-colors cursor-pointer">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+    </select>
+
+    <!-- View mode toggle -->
+    <div class="flex gap-1 bg-surface border border-border rounded-xl p-1">
+      <button onclick="setViewMode('comfortable')" id="view-comfortable"
+        class="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors pill-active" title="Comfortable view">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      </button>
+      <button onclick="setViewMode('compact')" id="view-compact"
+        class="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors pill-inactive" title="Compact view">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ITEMS GRID -->
+  <div id="items-container" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <!-- Populated by room.js -->
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="hidden text-center py-24">
+    <div class="w-16 h-16 bg-surface border border-border rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    </div>
+    <p class="text-slate-500 font-medium mb-1">No items yet</p>
+    <p class="text-slate-700 text-sm">Paste or type something above to get started</p>
+  </div>
+
+  <!-- Skeleton loader -->
+  <div id="skeleton-loader" class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+    <% for(let i=0; i<3; i++) { %>
+    <div class="bg-surface border border-border rounded-2xl p-5 animate-pulse">
+      <div class="flex gap-2 mb-4"><div class="h-5 w-16 bg-border rounded-full"></div></div>
+      <div class="h-4 bg-border rounded mb-2 w-3/4"></div>
+      <div class="h-4 bg-border rounded mb-2 w-full"></div>
+      <div class="h-4 bg-border rounded w-2/3"></div>
+    </div>
+    <% } %>
+  </div>
+</main>
+
+<!-- Inline edit modal -->
+<div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+  <div class="bg-surface border border-border rounded-2xl p-6 w-full max-w-lg shadow-2xl animate-slide-up">
+    <div class="flex justify-between items-center mb-4">
+      <span class="font-semibold text-white">Edit Item</span>
+      <button onclick="closeEditModal()" class="text-slate-400 hover:text-white transition-colors text-xl leading-none">&times;</button>
+    </div>
+    <input id="edit-label" type="text" maxlength="200" placeholder="Label (optional)"
+      class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-700 focus:border-violet-500 transition-colors mb-3" />
+    <textarea id="edit-content" rows="6"
+      class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-3 text-white text-sm focus:border-violet-500 transition-colors resize-none font-mono"></textarea>
+    <div class="flex gap-3 mt-4">
+      <button onclick="closeEditModal()" class="flex-1 py-2.5 rounded-xl border border-border text-slate-400 hover:text-white text-sm transition-all">Cancel</button>
+      <button onclick="saveEdit()" class="flex-1 py-2.5 rounded-xl btn-primary text-sm font-semibold">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Socket.io client -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/room.js"></script>
