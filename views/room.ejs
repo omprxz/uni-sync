@@ -88,6 +88,13 @@
           class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-3 text-white text-sm placeholder-slate-700 focus:border-violet-500 transition-colors resize-none font-sans"
           oninput="onContentInput(this.value)" onkeydown="onContentKeydown(event)"></textarea>
         <div class="flex flex-wrap gap-2 mt-2.5">
+          <select id="new-category" class="w-full sm:w-auto bg-[#0a0c12] border border-border rounded-xl px-3 py-2.5 text-white text-sm focus:border-violet-500 transition-colors">
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Study">Study</option>
+            <option value="Personal">Personal</option>
+            <option value="Other">Other</option>
+          </select>
           <input id="new-label" type="text" maxlength="200" placeholder="Label / title (optional)"
             class="w-full sm:flex-1 bg-[#0a0c12] border border-border rounded-xl px-4 py-2.5 text-white text-sm placeholder-slate-700 focus:border-violet-500 transition-colors" />
           <div class="flex gap-2 w-full sm:w-auto">

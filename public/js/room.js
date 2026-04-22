@@ -217,14 +217,15 @@ function itemCardHTML(item) {
   <path d="M3 21L9.5 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
 </svg></button>`;
 
+  const downloadBtn = item.type === "image"
+    ? `<button onclick="downloadImage('${escHtml(item.content)}', '${escHtml(item.label || 'image.png')}')" title="Download" class="icon-btn text-slate-500 hover:text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>`
+    : (item.type === "file" 
+        ? `<a href="${escHtml(item.content)}" target="_blank" download title="Download" class="icon-btn text-slate-500 hover:text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></a>`
+        : "");
+
   const openBtn =
     item.type === "link"
       ? `<button onclick="window.open('${escHtml(item.content)}','_blank')" title="Open link" class="icon-btn text-slate-600 hover:text-blue-400">↗</button>`
-      : "";
-
-  const downloadBtn =
-    item.type === "image" || item.type === "file"
-      ? `<a href="${escHtml(item.content)}" target="_blank" download title="Download" class="icon-btn text-slate-600 hover:text-emerald-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></a>`
       : "";
 
   return `
@@ -232,6 +233,7 @@ function itemCardHTML(item) {
     <!-- Header row -->
     <div class="flex items-center gap-2 mb-${compact ? "2" : "3"}">
       <span class="text-xs font-bold px-2.5 py-1 rounded-full border bg-${tc.color}-500/10 text-${tc.color}-400 border-${tc.color}-500/20">${tc.label}</span>
+      ${item.category && item.category !== 'General' ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-slate-500/10 text-slate-400 border-slate-500/20">${escHtml(item.category)}</span>` : ''}
       ${pinIcon}
       ${isStarred ? '<span class="text-amber-400 text-xs">★</span>' : ""}
       ${item.label ? `<span class="text-white font-medium text-sm truncate flex-1">${escHtml(item.label)}</span>` : '<span class="flex-1"></span>'}
@@ -259,8 +261,8 @@ function itemCardHTML(item) {
       </button>
       ${pinBtn}
       ${starBtn}
-      <button onclick="saveToDrive('${item._id}')" title="Save to Drive" class="icon-btn text-slate-500 hover:text-emerald-400">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+      <button onclick="saveToDrive('${item._id}')" title="Save to Google Drive" class="icon-btn text-slate-500 hover:text-emerald-400 overflow-hidden">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 87.3 78"><path d="M6.6 66.85l38.8-67.3c-7-2.6-14-1.2-18.7 6l-25 43.3c-4.7 8.2-4.7 18 0 26.2h5.8z" fill="#0066da"/><path d="M71.8 53.7L53 21.2c-4.7-8.2-13.4-12.7-22.9-11.4l38.8 67.3c4.7-8.2 4.7-18 0-26.2z" fill="#00ac47"/><path d="M85 53.7c-4.7-8.2-13.4-12.7-22.9-11.4H24.5c9.4-1.2 18.2 3.3 22.9 11.4l25 43.3c4.7 8.2 13.4 12.7 22.9 11.4-9.4 1.2-18.2-3.3-22.9-11.4l-7.4-12.8z" fill="#ea4335"/><path d="M6.6 66.85c-4.7-8.2-4.7-18 0-26.2l25-43.3c-4.7 8.2-4.7 18 0 26.2l-25 43.3z" fill="#00832d"/><path d="M62.1 71.1c-9.4 1.2-18.2-3.3-22.9-11.4l-25-43.3c4.7 8.2 13.4 12.7 22.9 11.4h37.6c9.4-1.2 18.2 3.3 22.9 11.4l-35.5-8.1z" fill="#2684fc"/><path d="M71.8 53.7c4.7 8.2 4.7 18 0 26.2l-13.2-22.7c4.7-8.2 4.7-18 0-26.2l13.2 22.7z" fill="#ffba00"/></svg>
       </button>
       <button onclick="shareItem('${item._id}')" title="Share" class="icon-btn text-slate-500 hover:text-violet-400">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
@@ -394,6 +396,7 @@ async function submitItem() {
   }
 
   const label = document.getElementById("new-label").value.trim();
+  const category = document.getElementById("new-category").value;
   const btn = document.getElementById("submit-btn");
   btn.disabled = true;
   btn.textContent = "Adding...";
@@ -402,7 +405,7 @@ async function submitItem() {
     const res = await fetch(`/api/rooms/${CODE}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, label }),
+      body: JSON.stringify({ content, label, category }),
     });
     const item = await res.json();
     if (!res.ok) throw new Error(item.error || "Failed");
@@ -486,7 +489,9 @@ async function deleteItem(id) {
   renderItems();
 
   let undone = false;
-  showToast(`Deleted${item.label ? ": " + item.label : ""}`, "warning", 5000);
+  
+  const c = document.getElementById('toast-container');
+  while (c.children.length >= 3) c.firstChild.remove();
 
   // Show undo toast separately
   const undoEl = document.createElement("div");
@@ -600,6 +605,26 @@ async function saveToDrive(id) {
     } else {
       showToast(err.message, "error");
     }
+  }
+}
+
+async function downloadImage(url, filename) {
+  try {
+    showToast("Starting download...", "info");
+    const res = await fetch(url);
+    if(!res.ok) throw new Error();
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = filename || 'download.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch(err) {
+    showToast('Failed to download directly. Opening in new tab...', 'error');
+    window.open(url, '_blank');
   }
 }
 
@@ -789,7 +814,7 @@ function viewFull(id) {
   const container = document.getElementById("bottom-sheet-content");
   let content = "";
   if (item.type === "image")
-    content = `<div class="flex flex-col items-center"><img src="${escHtml(item.content)}" class="max-w-full max-h-96 object-contain rounded-lg" /><a href="${escHtml(item.content)}" target="_blank" download class="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors">↓ Download</a></div>`;
+    content = `<div class="flex flex-col items-center"><img src="${escHtml(item.content)}" class="max-w-full max-h-96 object-contain rounded-lg" /><button onclick="downloadImage('${escHtml(item.content)}', '${escHtml(item.label || 'image.png')}')" class="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors">↓ Download Image</button></div>`;
   else if (item.type === "file")
     content = `<div class="flex flex-col items-center gap-4"><svg class="w-16 h-16 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><a href="${escHtml(item.content)}" target="_blank" download class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors">↓ Download File</a></div>`;
   else if (item.type === "link")

@@ -94,6 +94,8 @@ app.use('/auth', authRouter);
 app.use('/rooms', roomsRouter);
 app.use('/api', apiRouter);
 app.use('/api/upload', require('./routes/upload'));
+app.use('/profile', require('./routes/profile'));
+app.use('/my-rooms', require('./routes/myRooms'));
 
 // Health check
 app.get('/health', (req, res) => {

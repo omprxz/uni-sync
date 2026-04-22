@@ -104,7 +104,7 @@ router.post('/rooms/:code/items', itemSubmitLimiter, async (req, res) => {
     const room = await Room.findOne({ code });
     if (!room) return res.status(404).json({ error: 'Room not found' });
 
-    let { content, label, type } = req.body;
+    let { content, label, type, category } = req.body;
     content = sanitize((content || '').trim());
     label = sanitize((label || '').trim());
 
@@ -118,6 +118,7 @@ router.post('/rooms/:code/items', itemSubmitLimiter, async (req, res) => {
 
     const item = await Item.create({
       roomCode: code, type, content, label, language, ogData,
+      category: category || 'General',
       expiresAt: room.expiresAt || null
     });
 

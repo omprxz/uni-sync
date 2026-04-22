@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  name: { type: String, trim: true },
+  username: { type: String, unique: true, sparse: true, trim: true },
+  profilePic: { type: String },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String },
   googleId: { type: String },
@@ -14,7 +17,8 @@ const userSchema = new mongoose.Schema({
   joinedRooms: [{
     roomCode: { type: String, uppercase: true },
     joinedAt: { type: Date, default: Date.now },
-    lastPassword: { type: String }
+    lastPassword: { type: String },
+    pinned: { type: Boolean, default: false }
   }],
   createdRooms: [{
     roomCode: { type: String, uppercase: true },

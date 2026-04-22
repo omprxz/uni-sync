@@ -3,7 +3,13 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const Room = require('../models/Room');
 const Item = require('../models/Item');
+const User = require('../models/User');
 const { roomCreationLimiter } = require('../middleware/rateLimiter');
+
+function requireAuth(req, res, next) {
+  if (!req.user) return res.redirect('/?error=login_required');
+  next();
+}
 
 function generateCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -17,10 +23,24 @@ function parseTTL(ttl) {
   return map[ttl] !== undefined ? map[ttl] : 86400;
 }
 
-const User = require('../models/User');
+// POST /rooms/pin/:code
+router.post('/pin/:code', requireAuth, async (req, res) => {
+  try {
+    const code = req.params.code.toUpperCase();
+    const idx = req.user.joinedRooms.findIndex(r => r.roomCode === code);
+    if (idx > -1) {
+      req.user.joinedRooms[idx].pinned = !req.user.joinedRooms[idx].pinned;
+      await req.user.save();
+      return res.json({ success: true, pinned: req.user.joinedRooms[idx].pinned });
+    }
+    res.status(404).json({ error: 'Room not in your history' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // POST /rooms — create a room
-router.post('/', roomCreationLimiter, async (req, res) => {
+router.post('/', roomCreationLimiter, requireAuth, async (req, res) => {
   try {
     let { code, ttl, password } = req.body;
 
@@ -60,7 +80,7 @@ router.post('/', roomCreationLimiter, async (req, res) => {
 });
 
 // GET /rooms/:code — view/join a room
-router.get('/:code', async (req, res) => {
+router.get('/:code', requireAuth, async (req, res) => {
   try {
     const code = req.params.code.toUpperCase();
     const room = await Room.findOne({ code });
@@ -82,6 +102,7 @@ router.get('/:code', async (req, res) => {
 
       if (existingIndex > -1) {
         joinedData.lastPassword = req.user.joinedRooms[existingIndex].lastPassword;
+        joinedData.pinned = req.user.joinedRooms[existingIndex].pinned;
         req.user.joinedRooms.splice(existingIndex, 1);
       }
       req.user.joinedRooms.unshift(joinedData);

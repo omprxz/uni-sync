@@ -1,0 +1,34 @@
+<div class="min-h-screen bg-[#0a0c12] bg-grid pt-24 px-4 pb-16">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <a href="/" class="text-sm text-slate-400 hover:text-white transition-colors">← Back to Dashboard</a>
+      <h2 class="text-2xl font-bold text-white">My Created Rooms</h2>
+    </div>
+
+    <% if (rooms.length === 0) { %>
+      <div class="text-center py-16 bg-surface border border-border rounded-2xl shadow-xl">
+        <span class="text-4xl mb-4 block opacity-50">📂</span>
+        <p class="text-slate-400 mb-4">You haven't created any rooms yet.</p>
+        <a href="/" class="px-5 py-2.5 rounded-xl btn-primary text-sm font-semibold inline-block">Create Now</a>
+      </div>
+    <% } else { %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% rooms.forEach(r => { %>
+          <div class="bg-surface border border-border rounded-xl p-5 hover:border-violet-500/50 transition-colors relative group">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <a href="/rooms/<%= r.code %>" class="font-mono font-bold text-2xl text-violet-400 hover:text-violet-300 transition-colors block leading-none mb-1"><%= r.code %></a>
+                <span class="text-xs text-slate-500">Created on <%= new Date(r.createdAt).toLocaleDateString() %></span>
+              </div>
+              <span class="px-2 py-1 bg-[#0a0c12] border border-border rounded-md text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
+                <%= r.passwordHash ? '🔒 Private' : '🔓 Public' %>
+              </span>
+            </div>
+            
+            <a href="/rooms/<%= r.code %>" class="w-full block text-center py-2 rounded-lg border border-border opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/5 text-sm font-semibold text-slate-300">Enter Room →</a>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>
