@@ -24,7 +24,7 @@ const io = new Server(server, {
     skipMiddlewares: true
   }
 });
-
+app.set('trust proxy', 1)
 // Security headers (relaxed CSP for CDN assets)
 app.use(helmet({
   contentSecurityPolicy: {
