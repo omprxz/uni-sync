@@ -51,13 +51,27 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session
+// Database Connection 
+const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/droproom';
+
+const clientPromise = mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
+  .then(m => {
+    console.log('✅ Connected to MongoDB');
+    initSocket(io);
+    return m.connection.getClient();
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1);
+  });
+
+// Session
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  store: MongoStore.create({ clientPromise }),
   cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 } // 30 days
 }));
 
@@ -101,18 +115,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-// Connect to MongoDB then start
-const PORT = process.env.PORT || 3000;
-
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-    initSocket(io);
-    server.listen(PORT, () => {
-      console.log(`🚀 DropRoom running at http://localhost:${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1);
-  });
+// Start Server
+server.listen(PORT, () => {
+  console.log(`🚀 DropRoom running at http://localhost:${PORT}`);
+});
