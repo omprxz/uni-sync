@@ -103,7 +103,6 @@ app.use((err, req, res, next) => {
 
 // Connect to MongoDB then start
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/droproom';
 
 mongoose.connect(MONGO_URI)
   .then(() => {
