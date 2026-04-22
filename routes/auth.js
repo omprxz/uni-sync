@@ -23,8 +23,15 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
-  res.json({ success: true });
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) return res.status(500).json({ error: 'Internal Server Error' });
+    if (!user) return res.status(401).json({ error: info ? info.message : 'Invalid credentials' });
+    req.logIn(user, (err) => {
+      if (err) return res.status(500).json({ error: 'Login initialization failed' });
+      return res.json({ success: true });
+    });
+  })(req, res, next);
 });
 
 router.post('/logout', (req, res) => {
