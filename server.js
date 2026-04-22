@@ -13,7 +13,7 @@ const apiRouter = require('./routes/api');
 const authRouter = require('./routes/auth');
 const initSocket = require('./sockets/roomSocket');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const passport = require('./config/passport');
 
 const app = express();
