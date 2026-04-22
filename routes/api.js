@@ -212,6 +212,86 @@ router.get('/og', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+const { google } = require('googleapis');
+
+// POST /api/items/:id/drive — add item to Google Drive
+router.post('/items/:id/drive', async (req, res) => {
+  try {
+    if (!req.user || !req.user.googleTokens || !req.user.googleTokens.access_token) {
+      return res.status(401).json({ error: 'Google account not linked' });
+    }
+
+    const item = await Item.findById(req.params.id);
+    if (!item || item.deleted) return res.status(404).json({ error: 'Item not found' });
+
+    const oauth2Client = new google.auth.OAuth2();
+    oauth2Client.setCredentials(req.user.googleTokens);
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+    // Ensure DropRoom folder exists
+    let folderId = null;
+    const folderRes = await drive.files.list({
+      q: "name='DropRoom' and mimeType='application/vnd.google-apps.folder' and trashed=false",
+      fields: "files(id)"
+    });
+    if (folderRes.data.files.length > 0) {
+      folderId = folderRes.data.files[0].id;
+    } else {
+      const newFolder = await drive.files.create({
+        requestBody: { name: 'DropRoom', mimeType: 'application/vnd.google-apps.folder' },
+        fields: 'id'
+      });
+      folderId = newFolder.data.id;
+    }
+
+    // Ensure room folder exists
+    let roomFolderId = null;
+    const roomFolderRes = await drive.files.list({
+      q: `name='${item.roomCode}' and parents in '${folderId}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: "files(id)"
+    });
+    if (roomFolderRes.data.files.length > 0) {
+      roomFolderId = roomFolderRes.data.files[0].id;
+    } else {
+      const newRoomFolder = await drive.files.create({
+        requestBody: { name: item.roomCode, parents: [folderId], mimeType: 'application/vnd.google-apps.folder' },
+        fields: 'id'
+      });
+      roomFolderId = newRoomFolder.data.id;
+    }
+
+    // Upload file
+    const fileMetadata = {
+      name: item.label || `item-${item._id}`,
+      parents: [roomFolderId]
+    };
+
+    let media;
+    if (item.type === 'file' || item.type === 'image') {
+      const response = await axios.get(item.content, { responseType: 'stream' });
+      media = { body: response.data };
+      if (!fileMetadata.name.includes('.')) {
+        // give it an extension based on type, ideally could inspect content-type
+        fileMetadata.name += item.type === 'image' ? '.png' : '.bin';
+      }
+    } else {
+      media = { mimeType: 'text/plain', body: item.content };
+      fileMetadata.name += '.txt';
+    }
+
+    const driveFile = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id'
+    });
+
+    res.json({ success: true, fileId: driveFile.data.id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to upload to Drive' });
+  }
+});
+
 // GET /api/rooms/:code/activity
 router.get('/rooms/:code/activity', async (req, res) => {
   try {

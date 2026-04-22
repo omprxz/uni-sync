@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupKeyboardShortcuts();
   setupGlobalPaste();
   setupTypingDetector();
+  setupDragAndDrop();
 });
 
 // ─── Socket ───────────────────────────────────────────────────────────────────
@@ -258,6 +259,9 @@ function itemCardHTML(item) {
       </button>
       ${pinBtn}
       ${starBtn}
+      <button onclick="saveToDrive('${item._id}')" title="Save to Drive" class="icon-btn text-slate-500 hover:text-emerald-400">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+      </button>
       <button onclick="shareItem('${item._id}')" title="Share" class="icon-btn text-slate-500 hover:text-violet-400">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
       </button>
@@ -583,6 +587,22 @@ function shareItem(id) {
     .then(() => showToast("Share link copied!", "success"));
 }
 
+async function saveToDrive(id) {
+  try {
+    showToast("Saving to Drive...", "info");
+    const res = await fetch(`/api/items/${id}/drive`, { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showToast("Saved to Google Drive!", "success");
+  } catch (err) {
+    if (err.message === "Google account not linked") {
+      showToast("Please login with Google from home page first.", "warning");
+    } else {
+      showToast(err.message, "error");
+    }
+  }
+}
+
 // ─── Room Controls ────────────────────────────────────────────────────────────
 function copyRoomCode() {
   navigator.clipboard
@@ -694,6 +714,35 @@ function setupGlobalPaste() {
 // ─── Typing Indicator ─────────────────────────────────────────────────────────
 function setupTypingDetector() {
   // Handled inline in onContentInput
+}
+
+// ─── Drag & Drop ──────────────────────────────────────────────────────────────
+function setupDragAndDrop() {
+  const overlay = document.createElement("div");
+  overlay.className = "fixed inset-0 bg-violet-500/20 backdrop-blur-sm z-[999] hidden flex items-center justify-center border-4 border-violet-500 border-dashed rounded-2xl pointer-events-none transition-all duration-300";
+  overlay.innerHTML = "<div class='text-violet-400 font-bold text-2xl bg-surface px-6 py-4 rounded-2xl shadow-2xl'>Drop to Upload</div>";
+  document.body.appendChild(overlay);
+
+  let dragCounter = 0;
+  window.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dragCounter++;
+    overlay.classList.remove("hidden");
+  });
+  window.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) overlay.classList.add("hidden");
+  });
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    overlay.classList.add("hidden");
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFile(e.dataTransfer.files[0]);
+    }
+  });
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────

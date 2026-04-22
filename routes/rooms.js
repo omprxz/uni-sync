@@ -17,6 +17,8 @@ function parseTTL(ttl) {
   return map[ttl] !== undefined ? map[ttl] : 86400;
 }
 
+const User = require('../models/User');
+
 // POST /rooms — create a room
 router.post('/', roomCreationLimiter, async (req, res) => {
   try {
@@ -42,7 +44,13 @@ router.post('/', roomCreationLimiter, async (req, res) => {
     const expiresAt = ttlSeconds ? new Date(Date.now() + ttlSeconds * 1000) : null;
     const passwordHash = password && password.trim() ? await bcrypt.hash(password, 10) : null;
 
-    await new Room({ code, passwordHash, ttl: ttlSeconds, expiresAt }).save();
+    const newRoom = new Room({ code, passwordHash, ttl: ttlSeconds, expiresAt });
+    if (req.user) {
+      newRoom.createdBy = req.user._id;
+      req.user.createdRooms.push({ roomCode: code });
+      await req.user.save();
+    }
+    await newRoom.save();
 
     res.redirect(`/rooms/${code}`);
   } catch (err) {
@@ -64,8 +72,36 @@ router.get('/:code', async (req, res) => {
       });
     }
 
+    // Track in user joinedRooms
+    let bypassPassword = false;
+    if (req.user) {
+      let isCreator = room.createdBy && room.createdBy.equals(req.user._id);
+
+      const existingIndex = req.user.joinedRooms.findIndex(r => r.roomCode === code);
+      let joinedData = { roomCode: code, joinedAt: new Date() };
+
+      if (existingIndex > -1) {
+        joinedData.lastPassword = req.user.joinedRooms[existingIndex].lastPassword;
+        req.user.joinedRooms.splice(existingIndex, 1);
+      }
+      req.user.joinedRooms.unshift(joinedData);
+      
+      // limit to 20
+      if (req.user.joinedRooms.length > 20) req.user.joinedRooms.pop();
+      await req.user.save();
+
+      // Check if quick login can be done
+      if (isCreator || (room.passwordHash && req.query.verified !== '1' && joinedData.lastPassword)) {
+        if (isCreator) bypassPassword = true;
+        else if (joinedData.lastPassword) {
+            const match = await bcrypt.compare(joinedData.lastPassword, room.passwordHash);
+            if (match) bypassPassword = true;
+        }
+      }
+    }
+
     // Password-protected room — show password page
-    if (room.passwordHash && req.query.verified !== '1') {
+    if (room.passwordHash && req.query.verified !== '1' && !bypassPassword) {
       return res.render('password', {
         title: `Enter Password — ${code} — DropRoom`,
         code, error: req.query.error || null, layout: 'layout'
@@ -100,8 +136,16 @@ router.post('/:code/verify', async (req, res) => {
     const room = await Room.findOne({ code });
     if (!room) return res.redirect(`/rooms/${code}`);
 
-    const match = await bcrypt.compare(req.body.password || '', room.passwordHash);
+    const pwd = req.body.password || '';
+    const match = await bcrypt.compare(pwd, room.passwordHash);
     if (!match) return res.redirect(`/rooms/${code}?error=wrong_password`);
+
+    if (req.user) {
+      const idx = req.user.joinedRooms.findIndex(r => r.roomCode === code);
+      if (idx > -1) req.user.joinedRooms[idx].lastPassword = pwd;
+      else req.user.joinedRooms.unshift({ roomCode: code, lastPassword: pwd, joinedAt: new Date() });
+      await req.user.save();
+    }
 
     res.redirect(`/rooms/${code}?verified=1`);
   } catch (err) {

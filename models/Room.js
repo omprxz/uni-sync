@@ -8,7 +8,8 @@ const roomSchema = new mongoose.Schema({
   passwordHash: { type: String, default: null },
   ttl: { type: Number, default: null }, // seconds, null = never
   expiresAt: { type: Date, default: null },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 });
 
 // TTL index — MongoDB auto-deletes expired rooms

@@ -10,11 +10,20 @@ const expressLayouts = require('express-ejs-layouts');
 const indexRouter = require('./routes/index');
 const roomsRouter = require('./routes/rooms');
 const apiRouter = require('./routes/api');
+const authRouter = require('./routes/auth');
 const initSocket = require('./sockets/roomSocket');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const passport = require('./config/passport');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true
+  }
+});
 
 // Security headers (relaxed CSP for CDN assets)
 app.use(helmet({
@@ -42,11 +51,32 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Session
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/droproom';
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback_secret',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 } // 30 days
+}));
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Provide user to views
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  next();
+});
+
 // Attach io to every request
 app.use((req, res, next) => { req.io = io; next(); });
 
 // Routes
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 app.use('/rooms', roomsRouter);
 app.use('/api', apiRouter);
 app.use('/api/upload', require('./routes/upload'));

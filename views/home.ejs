@@ -12,6 +12,42 @@
       <p class="text-slate-400 text-sm leading-relaxed">Enter a room code to join or create a room.<br/>No login. No uploads. Just a code.</p>
     </div>
 
+    <!-- Auth Actions -->
+    <div class="mb-6 flex justify-center gap-4">
+      <% if (!user) { %>
+        <button onclick="document.getElementById('login-modal').style.display='flex'" class="px-4 py-2 rounded-xl border border-border text-slate-300 hover:text-white hover:border-violet-500/50 transition-colors text-sm font-semibold">Login / Signup</button>
+        <a href="/auth/google" class="px-4 py-2 rounded-xl bg-white text-black hover:bg-slate-200 transition-colors text-sm font-bold flex items-center gap-2 shadow-lg">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </a>
+      <% } else { %>
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-emerald-400 font-semibold text-sm">Welcome, <%= user.email %></span>
+          <div class="flex gap-2">
+            <% if (!user.googleId) { %>
+              <a href="/auth/google" class="px-3 py-1.5 rounded-lg border border-border text-xs text-slate-300 hover:text-white transition-colors">Link Google Drive</a>
+            <% } else { %>
+              <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">Google Linked</span>
+            <% } %>
+            <form action="/auth/logout" method="POST" class="inline">
+              <button type="submit" class="px-3 py-1.5 rounded-lg border border-border text-xs text-red-400 hover:bg-red-500/10 transition-colors">Logout</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    
+    <% if (user && user.joinedRooms && user.joinedRooms.length > 0) { %>
+      <div class="mb-6 w-full text-left">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">My Rooms</h3>
+        <div class="flex gap-2 justify-center flex-wrap">
+          <% user.joinedRooms.slice(0, 5).forEach(r => { %>
+            <a href="/rooms/<%= r.roomCode %>" class="px-3 py-1.5 rounded-xl bg-surface border border-border text-violet-400 hover:border-violet-500/50 transition-colors font-mono font-bold text-xs"><%= r.roomCode %></a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
     <% if (error) { %>
     <div class="mb-4 flex items-center gap-3 bg-red-900/30 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
       <span>⚠</span><span><%= error %></span>
@@ -96,7 +132,53 @@
   </div>
 </div>
 
+<!-- ─── Login/Signup Dialog ─────────────────────────────────────────────────── -->
+<div id="login-modal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
+  <div class="bg-surface border border-border rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" style="animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1)">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-white font-bold text-lg">Login / Signup</h2>
+      <button onclick="document.getElementById('login-modal').style.display='none'" class="text-slate-400 hover:text-white">&times;</button>
+    </div>
+    
+    <div class="mb-4">
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
+      <input id="auth-email" type="email" class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-3" />
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+      <input id="auth-password" type="password" class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-5" />
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="doAuth('/auth/login')" class="flex-1 py-2.5 rounded-xl border border-border text-slate-300 hover:text-white hover:border-violet-500/50 text-sm transition-all font-semibold">
+        Login
+      </button>
+      <button onclick="doAuth('/auth/register')" class="flex-1 py-2.5 rounded-xl btn-primary text-sm font-semibold">
+        Signup
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
+  async function doAuth(endpoint) {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) return showToast('Email and password required', 'warning');
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.message || 'Error occurred');
+      
+      location.reload();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
   function goToRoom() {
     const code = document.getElementById('room-code-input').value.trim();
     if (code.length !== 6) { showToast('Enter a 6-character room code', 'warning'); return; }
