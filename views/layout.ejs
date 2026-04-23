@@ -123,9 +123,67 @@
     html.light .filter-pill { border: none !important; }
 </style>
 </head>
-<body class=" min-h-screen bg-[#0a0c12]">
+<body class="min-h-screen bg-[#0a0c12]">
 
-  <%- body %>
+  <% if (user && (typeof isRoom === 'undefined' || !isRoom)) { %>
+    <!-- Dashboard Layout -->
+    <div class="flex flex-col min-h-screen">
+      
+      <!-- Unified Top Header -->
+      <header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <!-- Logo -->
+          <a href="/" class="flex items-center gap-3 group">
+            <img src="/logo-icon.png" alt="DropRoom" class="w-8 h-8 rounded-lg shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform" />
+            <span class="text-xl font-bold text-white tracking-tight">DropRoom</span>
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="!hidden md:!flex items-center gap-2">
+            <a href="/" class="px-4 py-2 rounded-xl hover:bg-white/5 transition-colors text-sm font-semibold <%= (typeof title !== 'undefined' && title.includes('DropRoom') && !title.includes('My ') && !title.includes('Profile')) ? 'text-violet-400 bg-violet-500/10' : 'text-slate-300 hover:text-white' %>">Dashboard</a>
+            <a href="/my-rooms" class="px-4 py-2 rounded-xl hover:bg-white/5 transition-colors text-sm font-semibold <%= (typeof title !== 'undefined' && title.includes('My Created Rooms')) ? 'text-violet-400 bg-violet-500/10' : 'text-slate-300 hover:text-white' %>">My Rooms</a>
+            <a href="/profile" class="px-4 py-2 rounded-xl hover:bg-white/5 transition-colors text-sm font-semibold <%= (typeof title !== 'undefined' && title.includes('Profile')) ? 'text-violet-400 bg-violet-500/10' : 'text-slate-300 hover:text-white' %>">Profile</a>
+            
+            <div class="w-px h-5 bg-border mx-2"></div>
+            
+            <form action="/auth/logout" method="POST" class="m-0">
+              <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Logout
+              </button>
+            </form>
+          </nav>
+
+          <!-- Mobile Menu Button -->
+          <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="md:hidden text-slate-300 hover:text-violet-400 transition-colors p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Menu Dropdown -->
+      <div id="mobile-menu" class="hidden md:hidden fixed top-16 left-0 right-0 bg-surface border-b border-border z-30 shadow-xl flex flex-col p-4 space-y-2 animate-slide-down">
+        <a href="/" class="px-4 py-3 rounded-xl hover:bg-white/5 text-slate-300 text-sm font-medium">Dashboard</a>
+        <a href="/my-rooms" class="px-4 py-3 rounded-xl hover:bg-white/5 text-slate-300 text-sm font-medium">My Rooms</a>
+        <a href="/profile" class="px-4 py-3 rounded-xl hover:bg-white/5 text-slate-300 text-sm font-medium">Profile</a>
+        <div class="h-px bg-border my-2"></div>
+        <form action="/auth/logout" method="POST">
+          <button type="submit" class="w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400 text-sm font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Logout
+          </button>
+        </form>
+      </div>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 bg-grid relative overflow-x-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-violet-600/5 to-transparent pointer-events-none"></div>
+        <%- body %>
+      </main>
+    </div>
+  <% } else { %>
+    <%- body %>
+  <% } %>
 
   <!-- Toast container -->
   <div id="toast-container" class="toast flex flex-col gap-2 pointer-events-none"></div>

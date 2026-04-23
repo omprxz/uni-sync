@@ -1,167 +1,452 @@
-<div class="min-h-screen bg-[#0a0c12] bg-grid flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">
-  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-violet-600/5 rounded-full blur-3xl" style="pointer-events:none"></div>
-  <div class="absolute bottom-0 left-1/4 w-80 h-80 bg-indigo-600/5 rounded-full blur-3xl" style="pointer-events:none"></div>
-
-  <div class="relative z-10 w-full max-w-sm">
-    <!-- Logo -->
-    <div class="text-center mb-10">
-      <a href="/" class="inline-flex items-center gap-3 mb-5 group">
-        <img src="/logo-icon.png" alt="DropRoom" class="w-11 h-11 rounded-xl shadow-lg shadow-violet-500/30 group-hover:scale-105 transition-transform" />
+<% if (!user) { %>
+<!-- Landing Page for non-logged in users -->
+<div class="min-h-screen bg-[#0a0c12] bg-grid flex flex-col relative overflow-hidden">
+  <!-- Nav -->
+  <header class="flex justify-between items-center p-6 md:px-12 relative z-20">
+     <div class="flex items-center gap-3">
+        <img src="/logo-icon.png" class="w-8 h-8 rounded-lg shadow-lg shadow-violet-500/30" />
         <span class="text-2xl font-bold text-white tracking-tight">DropRoom</span>
-      </a>
-      <p class="text-slate-400 text-sm leading-relaxed">Enter a room code to join or create a room.<br/>No login. No uploads. Just a code.</p>
-    </div>
-
-    <!-- Auth Actions -->
-    <div class="mb-6 flex justify-center gap-4">
-      <% if (!user) { %>
-        <div class="w-full bg-surface border border-border rounded-2xl p-6 text-center shadow-2xl">
-          <h2 class="text-white font-bold text-lg mb-2">Welcome to DropRoom</h2>
-          <p class="text-slate-400 text-sm mb-6">Login or create an account to join and create rooms securely.</p>
-          <div class="flex gap-3 justify-center mb-4">
-            <button onclick="document.getElementById('login-modal').style.display='flex'" class="flex-1 max-w-[150px] py-2.5 rounded-xl border border-border text-slate-300 hover:text-white hover:border-violet-500/50 transition-colors text-sm font-semibold">Login / Signup</button>
-            <a href="/auth/google" class="flex-1 max-w-[150px] py-2.5 rounded-xl bg-white text-black hover:bg-slate-200 transition-colors text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
-              <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Google
-            </a>
-          </div>
-        </div>
-      <% } else { %>
-        <div class="flex flex-col items-center gap-2 w-full">
-          <div class="flex gap-4 w-full justify-center mb-2">
-            <span class="text-emerald-400 font-semibold text-sm">Welcome, <%= user.name || user.username || user.email %>!</span>
-            <a href="/profile" class="text-xs text-violet-400 hover:text-white transition-colors">Profile</a>
-            <a href="/my-rooms" class="text-xs text-blue-400 hover:text-white transition-colors">My Created Rooms</a>
-          </div>
-        </div>
-      <% } %>
+     </div>
+     <div class="flex items-center gap-2 sm:gap-4">
+        <button onclick="document.getElementById('login-modal').style.display='flex'" class="px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white transition-colors">Login</button>
+        <button onclick="document.getElementById('login-modal').style.display='flex'" class="px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40">Sign Up Free</button>
+     </div>
+  </header>
+  
+  <!-- Hero Section -->
+  <main class="flex-1 flex flex-col items-center justify-center px-4 text-center relative z-20 pt-10 pb-24">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-semibold mb-8 animate-fade-in shadow-inner">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+      </span>
+      Real-time Data Synchronization
     </div>
     
-    <% if (user) { %>
-      <!-- Single input card -->
-      <div class="bg-surface border border-border rounded-2xl p-6 shadow-2xl glow-violet mb-6">
-        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Room Code</label>
-        <input id="room-code-input" type="text" maxlength="6" placeholder="X4K9QZ"
-          class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-4 text-white text-2xl font-mono font-bold tracking-widest placeholder-slate-700 focus:border-violet-500 transition-colors text-center uppercase mb-4"
-          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
-          onkeydown="if(event.key==='Enter') goToRoom()"
-          autocomplete="off" spellcheck="false" autofocus />
+    <h1 class="text-5xl sm:text-6xl md:text-8xl font-black text-white tracking-tight leading-[1.1] mb-8 max-w-5xl animate-slide-up">
+      Sync anything, <br/>
+      <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-400 to-emerald-400">instantly anywhere.</span>
+    </h1>
+    
+    <p class="text-slate-400 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed animate-slide-up" style="animation-delay: 0.1s">
+      Create a room, share the code, and start dropping links, text snippets, and images. No complex setup. No friction. Just instant real-time collaboration.
+    </p>
+    
+    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto animate-slide-up" style="animation-delay: 0.2s">
+      <button onclick="document.getElementById('login-modal').style.display='flex'" class="px-8 py-4 rounded-2xl btn-primary text-base font-bold shadow-2xl shadow-violet-500/25 flex items-center justify-center gap-2">
+        Start Dropping Now
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+      <a href="/auth/google" class="px-8 py-4 rounded-2xl bg-surface border border-border text-white text-base font-bold hover:bg-white/5 transition-colors flex items-center justify-center gap-3">
+        <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </a>
+    </div>
 
-        <button onclick="goToRoom()" id="go-btn"
-          class="w-full py-3 rounded-xl btn-primary text-sm font-semibold mb-4 flex items-center justify-center gap-2">
-          <span id="go-btn-text">Enter Room →</span>
-          <span id="go-spinner" style="display:none">
-            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-          </span>
-        </button>
+    <!-- Social Proof -->
+    <div class="mt-16 w-full max-w-4xl border-t border-border/50 pt-8 animate-slide-up" style="animation-delay: 0.3s">
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 text-center md:text-left">Trusted by forward-thinking teams</p>
+      <div class="flex flex-wrap justify-center md:justify-between items-center gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+        <div class="text-2xl font-black text-white italic">ACME Corp</div>
+        <div class="text-xl font-bold text-white tracking-[0.2em]">GLOBAL</div>
+        <div class="text-xl font-serif text-white">Startup.io</div>
+        <div class="text-2xl font-mono text-white">DEV_LINK</div>
+        <div class="text-xl font-bold text-white tracking-tighter">NEXUS</div>
+      </div>
+    </div>
 
-        <div class="text-center">
-          <button onclick="createFresh()" class="text-xs text-slate-600 hover:text-violet-400 transition-colors underline-offset-2 hover:underline">
-            or create a new room with a random code →
-          </button>
+    <!-- Feature highlights -->
+    <div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full text-left animate-slide-up" style="animation-delay: 0.4s">
+      <div class="bg-surface/50 border border-border/50 rounded-3xl p-8 backdrop-blur-sm shadow-xl hover:border-violet-500/30 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 mb-6 border border-violet-500/20 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 class="text-white text-xl font-bold mb-3">Lightning Fast</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Powered by Next-Gen WebSockets, your data syncs almost instantly across all connected screens. Zero refresh required.</p>
+      </div>
+      <div class="bg-surface/50 border border-border/50 rounded-3xl p-8 backdrop-blur-sm shadow-xl hover:border-emerald-500/30 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6 border border-emerald-500/20 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h3 class="text-white text-xl font-bold mb-3">Secure Rooms</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Optional password cryptography and auto-expiring TTL rooms natively keep your sensitive drops 100% private.</p>
+      </div>
+      <div class="bg-surface/50 border border-border/50 rounded-3xl p-8 backdrop-blur-sm shadow-xl hover:border-blue-500/30 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-6 border border-blue-500/20 shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        </div>
+        <h3 class="text-white text-xl font-bold mb-3">Drive Export</h3>
+        <p class="text-slate-400 text-sm leading-relaxed">Organize drops with taxonomy categories and seamlessly push high-resolution images & files straight into Google Drive.</p>
+      </div>
+    </div>
+
+    <!-- Deep Dive 1 -->
+    <div class="mt-32 max-w-5xl w-full flex flex-col md:flex-row items-center gap-12 text-left">
+      <div class="flex-1 space-y-8 pr-0 md:pr-8">
+        <div class="w-14 h-14 bg-violet-500/10 text-violet-400 flex items-center justify-center rounded-2xl border border-violet-500/20">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">Built specifically <br/>for Developers</h2>
+        <p class="text-slate-400 text-lg leading-relaxed">DropRoom understands your code. Paste any snippet, and we'll automatically detect the language, syntax-highlight it, and preserve your indentation perfectly. Copying to your clipboard is a one-click process.</p>
+        <ul class="space-y-4 text-slate-300 font-medium">
+          <li class="flex items-center gap-4"><div class="w-2 h-2 rounded-full bg-violet-500"></div> Native markdown parsing</li>
+          <li class="flex items-center gap-4"><div class="w-2 h-2 rounded-full bg-violet-500"></div> Auto-highlighting for 50+ languages</li>
+          <li class="flex items-center gap-4"><div class="w-2 h-2 rounded-full bg-violet-500"></div> Instant one-click copy buttons</li>
+        </ul>
+      </div>
+      <div class="flex-1 w-full relative">
+        <div class="absolute inset-0 bg-violet-500/20 blur-[80px] rounded-full pointer-events-none"></div>
+        <div class="bg-[#0a0c12] border border-border rounded-3xl p-6 shadow-2xl skew-y-3 transform -rotate-3 hover:rotate-0 hover:skew-y-0 transition-transform duration-700 relative z-10 w-full overflow-hidden">
+          <div class="flex items-center gap-2 mb-6 p-2 bg-white/5 rounded-lg border border-white/10">
+            <div class="w-3 h-3 rounded-full bg-red-400 shadow-sm"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-400 shadow-sm"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-400 shadow-sm"></div>
+            <div class="ml-2 text-xs text-slate-500 font-mono">App.js</div>
+          </div>
+          <pre class="text-sm font-mono text-slate-300 overflow-x-hidden">
+<span class="text-violet-400">const</span> <span class="text-blue-400">syncData</span> = <span class="text-violet-400">async</span> () <span class="text-violet-400">=></span> {
+  <span class="text-violet-400">const</span> room = <span class="text-emerald-400">"NEXUS"</span>;
+  <span class="text-slate-500">// Syncs directly across devices</span>
+  socket.<span class="text-blue-400">emit</span>(<span class="text-emerald-400">'join'</span>, room, (res) <span class="text-violet-400">=></span> {
+    <span class="text-orange-400">console</span>.<span class="text-blue-400">log</span>(<span class="text-emerald-400">"Joined payload"</span>, res);
+  });
+}</pre>
         </div>
       </div>
-      
-      <% if (enrichedRooms && enrichedRooms.length > 0) { %>
-        <div class="mb-6 w-full text-left">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Recent Joined Rooms</h3>
-          <div class="flex flex-col gap-2">
-            <% enrichedRooms.slice(0, 10).forEach(r => { %>
-              <div class="flex justify-between items-center bg-surface border <%= r.pinned ? 'border-violet-500/50' : 'border-border' %> rounded-xl px-4 py-3 hover:border-violet-500/50 transition-colors">
-                <a href="/rooms/<%= r.roomCode %>" class="flex-1 flex flex-col">
-                  <span class="font-mono font-bold text-violet-400 text-sm"><%= r.roomCode %></span>
-                  <span class="text-xs text-slate-500">Created by: <%= r.creatorName %></span>
-                </a>
-                <button onclick="togglePin('<%= r.roomCode %>')" class="text-xl leading-none <%= r.pinned ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400' %> transition-colors" title="<%= r.pinned ? 'Unpin' : 'Pin' %>">★</button>
-              </div>
-            <% }) %>
+    </div>
+
+    <!-- Deep Dive 2 -->
+    <div class="mt-32 max-w-5xl w-full flex flex-col-reverse md:flex-row items-center gap-12 text-left">
+      <div class="flex-1 w-full relative">
+        <div class="absolute inset-0 bg-emerald-500/20 blur-[80px] rounded-full pointer-events-none"></div>
+        <div class="bg-surface border border-border rounded-3xl p-4 shadow-2xl relative z-10 hover:scale-105 transition-transform duration-700">
+          <div class="relative overflow-hidden rounded-2xl mb-4 group">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" class="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-700" alt="Mockup" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <button class="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 hover:bg-emerald-400 transition-colors">
+               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg> Push to Drive
+            </button>
+          </div>
+          <div class="px-2 pb-2">
+            <div class="h-4 bg-border rounded-full w-3/4 mb-3"></div>
+            <div class="h-4 bg-border rounded-full w-1/2"></div>
           </div>
         </div>
-      <% } %>
-    <% } %>
-
-    <% if (error) { %>
-    <div class="mb-4 flex items-center gap-3 bg-red-900/30 border border-red-500/30 text-red-400 rounded-xl px-4 py-3 text-sm">
-      <span>⚠</span><span><%= error %></span>
+      </div>
+      <div class="flex-1 space-y-8 pl-0 md:pl-8">
+        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 flex items-center justify-center rounded-2xl border border-emerald-500/20">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">Visual Media <br/>& Heavy Files</h2>
+        <p class="text-slate-400 text-lg leading-relaxed">No more emailing images to yourself or battling WhatsApp self-messages. Drag and drop any image or file into the room, and it's instantly available for high-res download or direct one-click export to your connected Google Drive.</p>
+        <button onclick="document.getElementById('login-modal').style.display='flex'" class="text-emerald-400 font-bold hover:text-white transition-colors flex items-center gap-2 group text-lg">
+          Explore integrations 
+          <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
     </div>
-    <% } %>
-
-    <!-- Features -->
-    <div class="flex justify-center gap-5 mt-8 text-xs text-slate-600">
-      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Real-time sync</span>
-      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Links & previews</span>
-      <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Code highlighting</span>
+  </main>
+  
+  <!-- How it works -->
+  <section class="relative z-20 py-24 px-6 md:px-12 border-t border-border/50 bg-[#0a0c12]/50">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">How DropRoom Works</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-lg">Skip the complicated setups. Share anything with anyone in three simple steps.</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Step 1 -->
+        <div class="relative bg-surface/40 p-8 rounded-3xl border border-border hover:border-violet-500/30 transition-colors group">
+          <div class="text-6xl font-black text-violet-500/10 absolute top-4 right-6 group-hover:text-violet-500/20 transition-colors">01</div>
+          <div class="w-12 h-12 bg-violet-500 text-white flex items-center justify-center rounded-2xl mb-6 font-bold text-xl shadow-lg shadow-violet-500/30">1</div>
+          <h3 class="text-xl font-bold text-white mb-3">Create a Room</h3>
+          <p class="text-slate-400">Log in and instantly generate a secure, 6-character room code. No bloated dashboards, just a blank slate to drop in.</p>
+        </div>
+        <!-- Step 2 -->
+        <div class="relative bg-surface/40 p-8 rounded-3xl border border-border hover:border-indigo-500/30 transition-colors group">
+          <div class="text-6xl font-black text-indigo-500/10 absolute top-4 right-6 group-hover:text-indigo-500/20 transition-colors">02</div>
+          <div class="w-12 h-12 bg-indigo-500 text-white flex items-center justify-center rounded-2xl mb-6 font-bold text-xl shadow-lg shadow-indigo-500/30">2</div>
+          <h3 class="text-xl font-bold text-white mb-3">Share the Code</h3>
+          <p class="text-slate-400">Send the PIN to your team, or type it into your mobile browser. Anyone with the code can view the room dynamically.</p>
+        </div>
+        <!-- Step 3 -->
+        <div class="relative bg-surface/40 p-8 rounded-3xl border border-border hover:border-emerald-500/30 transition-colors group">
+          <div class="text-6xl font-black text-emerald-500/10 absolute top-4 right-6 group-hover:text-emerald-500/20 transition-colors">03</div>
+          <div class="w-12 h-12 bg-emerald-500 text-white flex items-center justify-center rounded-2xl mb-6 font-bold text-xl shadow-lg shadow-emerald-500/30">3</div>
+          <h3 class="text-xl font-bold text-white mb-3">Start Dropping</h3>
+          <p class="text-slate-400">Paste code snippets, upload files, drop images, and watch them push to every connected screen instantly in real-time.</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="relative z-20 py-24 px-6 border-t border-border/50 bg-[#0a0c12]">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Wall of Love</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-lg">See why thousands of developers and designers trust DropRoom daily.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div class="bg-surface border border-border hover:border-violet-500/30 transition-colors p-8 rounded-3xl relative shadow-xl">
+          <div class="text-6xl text-violet-500/20 absolute top-4 left-6 italic font-serif">"</div>
+          <p class="text-slate-300 mb-8 relative z-10 leading-relaxed pt-4">DropRoom completely replaced how I move snippets between my PC and Macbook. The syntax highlighting auto-detect is magical.</p>
+          <div class="flex items-center gap-4 border-t border-border/50 pt-6">
+            <div class="w-12 h-12 rounded-full bg-violet-500/20 border border-violet-500/50 flex items-center justify-center text-violet-400 font-bold">JD</div>
+            <div>
+              <div class="text-white font-bold text-sm leading-none mb-1">John Doe</div>
+              <div class="text-slate-500 text-xs">Senior Fullstack Engineer</div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface border border-border hover:border-indigo-500/30 transition-colors p-8 rounded-3xl relative shadow-xl">
+          <div class="text-6xl text-indigo-500/20 absolute top-4 left-6 italic font-serif">"</div>
+          <p class="text-slate-300 mb-8 relative z-10 leading-relaxed pt-4">The Google Drive export feature is a lifesaver. We use rooms to quickly collate brand assets and export them directly to our shared Workspace folders.</p>
+          <div class="flex items-center gap-4 border-t border-border/50 pt-6">
+            <div class="w-12 h-12 rounded-full bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-indigo-400 font-bold">SA</div>
+            <div>
+              <div class="text-white font-bold text-sm leading-none mb-1">Sarah Adams</div>
+              <div class="text-slate-500 text-xs">Creative Director</div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-surface border border-border hover:border-emerald-500/30 transition-colors p-8 rounded-3xl relative shadow-xl">
+          <div class="text-6xl text-emerald-500/20 absolute top-4 left-6 italic font-serif">"</div>
+          <p class="text-slate-300 mb-8 relative z-10 leading-relaxed pt-4">Finally, a tool that doesn't force me to download an app or sign up. Just a 6-digit code and my files are synced. It's incredibly frictionless.</p>
+          <div class="flex items-center gap-4 border-t border-border/50 pt-6">
+            <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 font-bold">MR</div>
+            <div>
+              <div class="text-white font-bold text-sm leading-none mb-1">Mike Ross</div>
+              <div class="text-slate-500 text-xs">Freelance Developer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section class="relative z-20 py-24 px-6 border-t border-border/50 bg-[#0a0c12]/50">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+        <p class="text-slate-400 text-lg">Everything you need to know about DropRoom.</p>
+      </div>
+      <div class="space-y-6 text-left">
+        <div class="bg-surface border border-border p-8 rounded-3xl shadow-lg hover:border-slate-600 transition-colors">
+          <h3 class="text-lg font-bold text-white mb-3">Is DropRoom actually free?</h3>
+          <p class="text-slate-400 leading-relaxed">Yes, DropRoom is completely free to use. You can create unlimited rooms and sync data without any hidden fees or subscriptions.</p>
+        </div>
+        <div class="bg-surface border border-border p-8 rounded-3xl shadow-lg hover:border-slate-600 transition-colors">
+          <h3 class="text-lg font-bold text-white mb-3">How secure are my files?</h3>
+          <p class="text-slate-400 leading-relaxed">You can password-protect any room and define a self-destruct timer (TTL) between 1 hour and permanent duration. Once the timer expires, the room and its contents are wiped completely from our MongoDB nodes.</p>
+        </div>
+        <div class="bg-surface border border-border p-8 rounded-3xl shadow-lg hover:border-slate-600 transition-colors">
+          <h3 class="text-lg font-bold text-white mb-3">Do I need an account to use DropRoom?</h3>
+          <p class="text-slate-400 leading-relaxed">To join an existing room via Code, no account is required! However, to create new rooms you need to sign up for a free account. This prevents spam abuse and lets you manage your "My Rooms" history dynamically on your dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="relative z-20 py-24 px-6 text-center border-t border-border/50">
+    <div class="absolute inset-0 bg-gradient-to-t from-violet-900/10 to-transparent pointer-events-none"></div>
+    <div class="max-w-3xl mx-auto relative z-10">
+      <h2 class="text-4xl md:text-5xl font-black text-white mb-6">Ready to simplify your workflow?</h2>
+      <p class="text-xl text-slate-400 mb-10">Join thousands of developers and creatives seamlessly moving files across devices.</p>
+      <button onclick="document.getElementById('login-modal').style.display='flex'" class="px-10 py-5 rounded-3xl bg-white text-black font-bold text-lg hover:bg-slate-200 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] hover:scale-105">
+        Create Your Free Account
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-20 border-t border-border py-12 text-center text-slate-500 bg-[#0a0c12]">
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <img src="/logo-icon.png" class="w-6 h-6 rounded border border-border opacity-50" />
+      <span class="font-bold text-slate-400">DropRoom</span>
+    </div>
+    <p class="text-sm mb-6">© <%= new Date().getFullYear() %> DropRoom. All rights reserved.</p>
+    
+    <div class="text-xs text-slate-600 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mt-8 pt-8 border-t border-border/30 max-w-lg mx-auto">
+      <span>Built with ❤️ by <strong class="text-slate-400">Omprakash Kumar</strong></span>
+      <span class="hidden sm:inline text-border">•</span>
+      <a href="mailto:omprxz@gmail.com" class="hover:text-violet-400 transition-colors flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        omprxz@gmail.com
+      </a>
+      <span class="hidden sm:inline text-border">•</span>
+      <a href="https://github.com/omprxz" target="_blank" class="hover:text-violet-400 transition-colors flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+        omprxz
+      </a>
+    </div>
+  </footer>
+
+  <!-- Blobs -->
+  <div class="absolute top-1/4 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 </div>
 
-<!-- ─── Create Room Dialog ─────────────────────────────────────────────────── -->
-<div id="create-dialog" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
-  <div class="bg-surface border border-border rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" style="animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1)">
-    <!-- Header -->
-    <div class="flex items-center gap-3 mb-1">
-      <div class="w-9 h-9 bg-violet-500/15 border border-violet-500/20 rounded-xl flex items-center justify-center text-lg">✦</div>
-      <div>
-        <h2 class="text-white font-bold text-base">Create Room</h2>
-        <p class="text-slate-500 text-xs">Room <span id="dialog-code" class="font-mono text-violet-400 font-bold"></span> doesn't exist yet</p>
+<% } else { %>
+<!-- Dashboard Mode for Logged-in Users -->
+<div class="p-6 md:p-12 max-w-4xl mx-auto flex flex-col gap-8 h-full">
+
+  <div class="mb-2">
+    <h2 class="text-3xl font-bold text-white tracking-tight mb-2">Welcome back, <%= user.name || user.username || user.email.split('@')[0] %> 👋</h2>
+    <p class="text-slate-400">Join a room or create a new one to start syncing.</p>
+  </div>
+
+  <!-- Single input card -->
+  <div class="bg-surface border border-border rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+    <!-- Decorative background glow -->
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 mx-auto max-w-md">
+      <label class="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">Room Code</label>
+      <input id="room-code-input" type="text" maxlength="6" placeholder="X4K9QZ"
+        class="w-full bg-[#0a0c12] border border-border rounded-2xl px-6 py-6 text-white text-4xl font-mono font-bold tracking-[0.3em] placeholder-slate-700/50 focus:border-violet-500 transition-colors text-center uppercase shadow-inner mb-6"
+        oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+        onkeydown="if(event.key==='Enter') goToRoom()"
+        autocomplete="off" spellcheck="false" autofocus />
+
+      <button onclick="goToRoom()" id="go-btn"
+        class="w-full py-4 rounded-xl btn-primary text-base font-bold mb-6 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20">
+        <span id="go-btn-text">Join Room →</span>
+        <span id="go-spinner" style="display:none">
+          <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+        </span>
+      </button>
+
+      <div class="text-center">
+        <button onclick="createFresh()" class="text-sm text-slate-400 hover:text-violet-400 transition-colors underline underline-offset-4 decoration-border hover:decoration-violet-500/50">
+          or generate a random code and create a new room →
+        </button>
       </div>
     </div>
-
-    <div class="h-px bg-border my-4"></div>
-
-    <form id="create-form" action="/rooms" method="POST">
-      <input type="hidden" name="code" id="form-code" />
-
-      <!-- TTL -->
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Expires after</label>
-      <div class="grid grid-cols-5 gap-1.5 mb-4">
-        <% [['1h','1h'],['6h','6h'],['24h','24h'],['7d','7d'],['never','∞']].forEach(([v,l], i) => { %>
-        <label class="cursor-pointer">
-          <input type="radio" name="ttl" value="<%= v %>" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" <%= i===2?'checked':'' %> onchange="updateTTLPills(this.value)" />
-          <span class="ttl-pill block text-center py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer <%= i===2 ? 'pill-active border-violet-500' : 'pill-inactive border-border' %>"><%= l %></span>
-        </label>
+  </div>
+  
+  <% if (enrichedRooms && enrichedRooms.length > 0) { %>
+    <div class="mt-4">
+      <div class="flex items-center justify-between mb-6 px-2">
+        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Recent Joined Rooms
+        </h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <% enrichedRooms.slice(0, 10).forEach(r => { %>
+          <div class="flex justify-between items-center bg-surface border <%= r.pinned ? 'border-violet-500/50 shadow-lg shadow-violet-500/10' : 'border-border' %> rounded-2xl p-4 hover:border-violet-500/50 transition-all group">
+            <a href="/rooms/<%= r.roomCode %>" class="flex-1 flex items-center gap-4 min-w-0">
+              <div class="w-12 h-12 rounded-xl bg-[#0a0c12] border border-border flex items-center justify-center shrink-0 <%= r.pinned ? 'text-violet-400 border-violet-500/30' : 'text-slate-400' %>">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-mono font-bold text-white text-lg truncate"><%= r.roomCode %></span>
+                <span class="text-xs text-slate-500 truncate mt-0.5">by <%= r.creatorName %></span>
+              </div>
+            </a>
+            <button onclick="togglePin('<%= r.roomCode %>')" class="text-xl leading-none p-2 rounded-lg <%= r.pinned ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400 hover:bg-white/5 opacity-100 md:opacity-0 group-hover:opacity-100' %> transition-all" title="<%= r.pinned ? 'Unpin' : 'Pin' %>">★</button>
+          </div>
         <% }) %>
       </div>
+    </div>
+  <% } %>
+</div>
+<% } %>
 
-      <!-- Password -->
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password <span class="text-slate-600 normal-case font-normal">(optional)</span></label>
-      <input name="password" type="password" placeholder="Leave blank for public room"
-        class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2.5 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-5" />
+<% if (error) { %>
+<script>
+  window.addEventListener('load', () => showToast(`<%= error %>`, 'error'));
+</script>
+<% } %>
 
-      <div class="flex gap-3">
-        <button type="button" onclick="closeDialog()" class="flex-1 py-2.5 rounded-xl border border-border text-slate-400 hover:text-white text-sm transition-all hover:border-slate-600">
-          Cancel
-        </button>
-        <button type="submit" class="flex-1 py-2.5 rounded-xl btn-primary text-sm font-semibold">
-          Create Room →
-        </button>
+<!-- ─── Create Room Dialog ─────────────────────────────────────────────────── -->
+<div id="create-dialog" style="display:none;position:fixed;inset:0;z-index:90;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
+  <div class="bg-surface border border-border rounded-3xl p-8 w-full max-w-sm mx-4 shadow-2xl relative overflow-hidden" style="animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1)">
+    <!-- Decorative background glow -->
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10">
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-2">
+        <div class="w-12 h-12 bg-violet-500/10 border border-violet-500/20 rounded-xl flex items-center justify-center text-xl text-violet-400 shadow-inner">✦</div>
+        <div>
+          <h2 class="text-white font-bold text-lg">Create new room</h2>
+          <p class="text-slate-500 text-sm">Code <span id="dialog-code" class="font-mono text-violet-400 font-bold"></span></p>
+        </div>
       </div>
-    </form>
+
+      <div class="h-px bg-border my-6"></div>
+
+      <form id="create-form" action="/rooms" method="POST">
+        <input type="hidden" name="code" id="form-code" />
+
+        <!-- TTL -->
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Room Lifespan</label>
+        <div class="grid grid-cols-5 gap-2 mb-6">
+          <% [['1h','1h'],['6h','6h'],['24h','24h'],['7d','7d'],['never','∞']].forEach(([v,l], i) => { %>
+          <label class="cursor-pointer">
+            <input type="radio" name="ttl" value="<%= v %>" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" <%= i===2?'checked':'' %> onchange="updateTTLPills(this.value)" />
+            <span class="ttl-pill block text-center py-2.5 rounded-xl text-sm font-bold border transition-all cursor-pointer <%= i===2 ? 'pill-active border-violet-500 shadow-md shadow-violet-500/20' : 'pill-inactive border-border hover:border-slate-600' %>"><%= l %></span>
+          </label>
+          <% }) %>
+        </div>
+
+        <!-- Password -->
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Password <span class="text-slate-600 normal-case font-normal">(optional)</span></label>
+        <input name="password" type="password" placeholder="Leave blank for public room"
+          class="w-full bg-[#0a0c12]/50 border border-border rounded-xl px-4 py-3.5 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm shadow-inner mb-6" />
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeDialog()" class="flex-1 py-3 rounded-xl border border-border text-slate-400 hover:text-white hover:bg-white/5 text-sm font-semibold transition-all">
+            Cancel
+          </button>
+          <button type="submit" class="flex-1 py-3 rounded-xl btn-primary text-sm font-semibold shadow-lg shadow-violet-500/20">
+            Create Room →
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
 <!-- ─── Login/Signup Dialog ─────────────────────────────────────────────────── -->
-<div id="login-modal" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
-  <div class="bg-surface border border-border rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl" style="animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1)">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-white font-bold text-lg">Login / Signup</h2>
-      <button onclick="document.getElementById('login-modal').style.display='none'" class="text-slate-400 hover:text-white">&times;</button>
-    </div>
-    
-    <div class="mb-4">
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Email</label>
-      <input id="auth-email" type="email" class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-3" />
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Password</label>
-      <input id="auth-password" type="password" class="w-full bg-[#0a0c12] border border-border rounded-xl px-4 py-2 text-white placeholder-slate-700 focus:border-violet-500 transition-colors text-sm mb-5" />
-    </div>
+<div id="login-modal" style="display:none;position:fixed;inset:0;z-index:90;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)">
+  <div class="bg-surface border border-border rounded-3xl p-8 w-full max-w-sm mx-4 shadow-2xl relative overflow-hidden" style="animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1)">
+    <!-- Decorative glow -->
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-white font-bold text-2xl tracking-tight">Access DropRoom</h2>
+        <button onclick="document.getElementById('login-modal').style.display='none'" class="text-slate-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full leading-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+        <input id="auth-email" type="email" placeholder="you@example.com" class="w-full bg-[#0a0c12]/50 border border-border rounded-xl px-4 py-3 text-white placeholder-slate-700/50 focus:border-violet-500 transition-colors text-sm mb-4 shadow-inner" />
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Password</label>
+        <input id="auth-password" type="password" placeholder="••••••••" class="w-full bg-[#0a0c12]/50 border border-border rounded-xl px-4 py-3 text-white placeholder-slate-700/50 focus:border-violet-500 transition-colors text-sm mb-2 shadow-inner" />
+      </div>
 
-    <div class="flex gap-3">
-      <button onclick="doAuth('/auth/login')" class="flex-1 py-2.5 rounded-xl border border-border text-slate-300 hover:text-white hover:border-violet-500/50 text-sm transition-all font-semibold">
-        Login
-      </button>
-      <button onclick="doAuth('/auth/register')" class="flex-1 py-2.5 rounded-xl btn-primary text-sm font-semibold">
-        Signup
-      </button>
+      <div class="flex flex-col gap-3 mb-6">
+        <button onclick="doAuth('/auth/login')" class="w-full py-3.5 rounded-xl btn-primary text-sm font-bold shadow-lg shadow-violet-500/20 tracking-wide">
+          Log In
+        </button>
+        <button onclick="doAuth('/auth/register')" class="w-full py-3.5 rounded-xl border border-border text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-all font-semibold">
+          Create new account
+        </button>
+      </div>
+
+      <div class="relative flex items-center justify-center mb-6">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-border"></div></div>
+        <div class="relative bg-surface px-4 text-xs text-slate-500 uppercase tracking-wider font-semibold">Or continue with</div>
+      </div>
+      
+      <a href="/auth/google" class="w-full py-3 rounded-xl bg-white text-black hover:bg-slate-200 transition-colors text-sm font-bold flex items-center justify-center gap-3 shadow-md">
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </a>
     </div>
   </div>
 </div>
@@ -214,7 +499,7 @@
   }
 
   function resetBtn() {
-    document.getElementById('go-btn-text').textContent = 'Enter Room →';
+    document.getElementById('go-btn-text').textContent = 'Join Room →';
     document.getElementById('go-spinner').style.display = 'none';
     document.getElementById('go-btn').disabled = false;
   }
@@ -223,7 +508,8 @@
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
     for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    document.getElementById('room-code-input').value = code;
+    const codeInput = document.getElementById('room-code-input');
+    if (codeInput) codeInput.value = code;
     showCreateDialog(code);
   }
 
@@ -246,9 +532,9 @@
       const inp = pill.previousElementSibling;
       const active = inp && inp.value === val;
       // reset classes
-      pill.classList.remove('pill-active', 'pill-inactive', 'border-violet-500', 'border-border');
+      pill.classList.remove('pill-active', 'pill-inactive', 'border-violet-500', 'border-border', 'shadow-md', 'shadow-violet-500/20');
       if (active) {
-        pill.classList.add('pill-active', 'border-violet-500');
+        pill.classList.add('pill-active', 'border-violet-500', 'shadow-md', 'shadow-violet-500/20');
       } else {
         pill.classList.add('pill-inactive', 'border-border');
       }
@@ -273,7 +559,16 @@
   document.getElementById('create-dialog').addEventListener('click', function(e) {
     if (e.target === this) closeDialog();
   });
+  
+  document.getElementById('login-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+  });
 
   // Close on Escape
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDialog(); });
+  document.addEventListener('keydown', e => { 
+    if (e.key === 'Escape') {
+      closeDialog(); 
+      document.getElementById('login-modal').style.display = 'none';
+    }
+  });
 </script>

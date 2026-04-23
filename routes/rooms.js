@@ -135,6 +135,7 @@ router.get('/:code', requireAuth, async (req, res) => {
     res.render('room', {
       title: `${code} — DropRoom`,
       layout: 'layout',
+      isRoom: true,
       roomCode: code,
       initialItems: JSON.stringify(items),
       roomData: JSON.stringify({

@@ -39,6 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDragAndDrop();
 });
 
+document.addEventListener('click', function(e) {
+  const btnContainer = document.getElementById('quick-switch-container');
+  const menu = document.getElementById('quick-switch');
+  if (btnContainer && menu && !btnContainer.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
+// ─── DOM Events ───────────────────────────────────────────────────────────────────
 // ─── Socket ───────────────────────────────────────────────────────────────────
 function setupSocketListeners() {
   socket.on("user-count", (n) => {
@@ -262,7 +271,7 @@ function itemCardHTML(item) {
       ${pinBtn}
       ${starBtn}
       <button onclick="saveToDrive('${item._id}')" title="Save to Google Drive" class="icon-btn text-slate-500 hover:text-emerald-400 overflow-hidden">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 87.3 78"><path d="M6.6 66.85l38.8-67.3c-7-2.6-14-1.2-18.7 6l-25 43.3c-4.7 8.2-4.7 18 0 26.2h5.8z" fill="#0066da"/><path d="M71.8 53.7L53 21.2c-4.7-8.2-13.4-12.7-22.9-11.4l38.8 67.3c4.7-8.2 4.7-18 0-26.2z" fill="#00ac47"/><path d="M85 53.7c-4.7-8.2-13.4-12.7-22.9-11.4H24.5c9.4-1.2 18.2 3.3 22.9 11.4l25 43.3c4.7 8.2 13.4 12.7 22.9 11.4-9.4 1.2-18.2-3.3-22.9-11.4l-7.4-12.8z" fill="#ea4335"/><path d="M6.6 66.85c-4.7-8.2-4.7-18 0-26.2l25-43.3c-4.7 8.2-4.7 18 0 26.2l-25 43.3z" fill="#00832d"/><path d="M62.1 71.1c-9.4 1.2-18.2-3.3-22.9-11.4l-25-43.3c4.7 8.2 13.4 12.7 22.9 11.4h37.6c9.4-1.2 18.2 3.3 22.9 11.4l-35.5-8.1z" fill="#2684fc"/><path d="M71.8 53.7c4.7 8.2 4.7 18 0 26.2l-13.2-22.7c4.7-8.2 4.7-18 0-26.2l13.2 22.7z" fill="#ffba00"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve" class="w-4 h-4"><path style="fill:#167ee6" d="M511.999 334.894a16.8 16.8 0 0 1-2.173 8.398c-3.13 5.573-68.368 121.436-71.509 127.009a16.88 16.88 0 0 1-14.714 8.601H88.396c-3.051 0-5.978-.822-8.522-2.308a16.9 16.9 0 0 1-6.192-6.293c-3.141-5.573-68.379-121.436-71.509-127.009A16.8 16.8 0 0 1 0 334.894z"/><path style="fill:#3d55cc" d="M511.999 334.894H256v144.008h167.604c3.051 0 5.978-.822 8.522-2.308s4.694-3.636 6.192-6.293c3.141-5.573 68.379-121.436 71.509-127.009a16.8 16.8 0 0 0 2.172-8.398"/><path style="fill:#12b347" d="M173.796 35.35a16.84 16.84 0 0 0-6.169 6.158C160.355 54.037 9.525 314.033 2.275 326.529a16.8 16.8 0 0 0-2.274 8.364 16.8 16.8 0 0 0 2.173 8.398c3.13 5.573 68.368 121.436 71.509 127.009a16.86 16.86 0 0 0 6.192 6.293L256.42 175.041 174.466 34.993c-.224.116-.45.231-.67.357"/><path style="fill:#ffd500" d="M511.999 334.894a16.8 16.8 0 0 0-2.274-8.364c-7.272-12.519-158.091-272.514-165.353-285.022a16.85 16.85 0 0 0-14.601-8.41H182.228c-3.006 0-5.91.799-8.432 2.252l175.371 299.544z"/><path style="fill:#fa0" d="M511.999 334.894H349.168L256 175.755V33.098h73.771a16.84 16.84 0 0 1 14.601 8.41c7.261 12.507 158.08 272.503 165.353 285.022a16.8 16.8 0 0 1 2.274 8.364"/></svg>
       </button>
       <button onclick="shareItem('${item._id}')" title="Share" class="icon-btn text-slate-500 hover:text-violet-400">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>

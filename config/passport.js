@@ -33,6 +33,7 @@ passport.use(new GoogleStrategy({
         // Link to existing
         user = await User.findById(req.user._id);
         user.googleId = profile.id;
+        user.googleEmail = email;
         user.googleTokens = {
           access_token: accessToken,
           refresh_token: refreshToken || user.googleTokens?.refresh_token,
@@ -45,9 +46,10 @@ passport.use(new GoogleStrategy({
         // Login or create new
         user = await User.findOne({ email });
         if (!user) {
-          user = new User({ email, googleId: profile.id });
+          user = new User({ email, googleId: profile.id, googleEmail: email });
         } else {
           user.googleId = profile.id;
+          user.googleEmail = email;
         }
         user.googleTokens = {
             access_token: accessToken,
