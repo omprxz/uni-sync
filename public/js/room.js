@@ -307,7 +307,7 @@ let inputDebounce;
 function onContentInput(val) {
   // Char count
   document.getElementById("char-count").textContent =
-    `${val.length.toLocaleString()} / 10,000`;
+    `${val.length.toLocaleString()} / 100,000`;
   const charEl = document.getElementById("char-count");
   charEl.classList.toggle("text-red-400", val.length > 9000);
   charEl.classList.toggle("text-slate-600", val.length <= 9000);
@@ -399,8 +399,8 @@ async function submitItem() {
     showToast("Enter some content first", "warning");
     return;
   }
-  if (content.length > 10000) {
-    showToast("Content exceeds 10,000 characters", "error");
+  if (content.length > 100000) {
+    showToast("Content exceeds 100,000 characters", "error");
     return;
   }
 
@@ -421,7 +421,7 @@ async function submitItem() {
 
     document.getElementById("new-content").value = "";
     document.getElementById("new-label").value = "";
-    document.getElementById("char-count").textContent = "0 / 10,000";
+    document.getElementById("char-count").textContent = "0 / 100,000";
     updateTypeBadge("");
     socket.emit("typing", { roomCode: CODE, isTyping: false });
     showToast("Item added!", "success");

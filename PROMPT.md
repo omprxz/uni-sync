@@ -38,7 +38,7 @@ Enter a 6-digit room code → get a shared live space to drop text-based content
 - Simple **input area** at the top of the room — auto-detects type (URL, code, markdown, plain text)
 - **Paste from clipboard** anywhere on the page (Ctrl+V / Cmd+V) — instantly creates a new item
 - **Keyboard shortcut** — press `N` to focus the new item input
-- Character count with soft limit warning (e.g., 10,000 chars max per item)
+- Character count with soft limit warning (e.g., 100,000 chars max per item)
 - Optional **label/title** for each item at the time of adding
 
 ---

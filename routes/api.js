@@ -109,7 +109,7 @@ router.post('/rooms/:code/items', itemSubmitLimiter, async (req, res) => {
     label = sanitize((label || '').trim());
 
     if (!content) return res.status(400).json({ error: 'Content is required' });
-    if (content.length > 10000) return res.status(400).json({ error: 'Content exceeds 10,000 characters' });
+    if (content.length > 100000) return res.status(400).json({ error: 'Content exceeds 100,000 characters' });
 
     if (!type) type = detectType(content);
     let ogData = null, language = null;
@@ -141,7 +141,7 @@ router.put('/items/:id', itemSubmitLimiter, async (req, res) => {
 
     if (req.body.content !== undefined) {
       item.content = sanitize(req.body.content.trim());
-      if (item.content.length > 10000) return res.status(400).json({ error: 'Too long' });
+      if (item.content.length > 100000) return res.status(400).json({ error: 'Too long' });
       item.type = detectType(item.content);
       item.language = item.type === 'code' ? detectLanguage(item.content) : null;
       item.ogData = item.type === 'link' ? await fetchOG(item.content) : null;
